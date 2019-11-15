@@ -1,0 +1,1 @@
+ansible-playbook ./playbooks/local.yml

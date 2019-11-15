@@ -1,0 +1,11 @@
+
+[masters]
+master ansible_host=pc779.emulab.net
+
+[workers]
+worker1 ansible_host=pc762.emulab.net
+worker2 ansible_host=pc780.emulab.net
+
+[all:vars]
+ansible_python_interpreter=/usr/bin/python3
+
