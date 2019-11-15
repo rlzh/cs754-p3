@@ -5,7 +5,7 @@
 
 ## Install sshpass
 
-1. Extract it and cd into the directory
+1. Extract sshpass.tar.gz and cd into the directory
 2. run './configure'
 3. run 'sudo make install'
 
