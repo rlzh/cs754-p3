@@ -1,1 +1,1 @@
-ansible-playbook ./playbooks/local.yml
+ansible-playbook -i hosts ./playbooks/local.yml
