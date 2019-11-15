@@ -1,7 +1,9 @@
 # cs754-p3
 
 
-# Cloudlab K8s Cluster Setup Instructions
+# CloudLab K8s Cluster Setup Instructions
+
+This process is intended for setting up experiments using the 'cs754-k8s' profile on CloudLab
 
 ## Install sshpass
 
