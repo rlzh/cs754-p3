@@ -1,9 +1,0 @@
-- hosts: 127.0.0.1
-  connection: local
-  tasks:
-    - name: add 'master' to known hosts
-      shell: ssh-keyscan {{ hostvars['master'].ansible_host }} >> ~/.ssh/known_hosts
-    - name: add 'worker1' to known hosts
-      shell: ssh-keyscan {{ hostvars['worker1'].ansible_host }} >> ~/.ssh/known_hosts
-    - name: add 'worker2' to known hosts
-      shell: ssh-keyscan {{ hostvars['worker2'].ansible_host }} >> ~/.ssh/known_hosts
