@@ -24,3 +24,10 @@ To begin first cd to 'setup/' directory
         './setupK8s.sh <ssh_username>' to setup k8s 
     OR  
         './setupHadoop.sh <ssh_username>' to setup hadoop
+
+# K8s
+
+# Hadoop
+
+Visit http://<master_node_ip>:9870 
+
