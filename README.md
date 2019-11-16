@@ -1,7 +1,7 @@
 # cs754-p3
 
 
-# CloudLab K8s Cluster Setup Instructions
+# CloudLab K8s Cluster/Hadoop Setup Instructions
 
 This process is intended for setting up experiments using the 'cs754-k8s' profile on CloudLab
 
@@ -14,8 +14,8 @@ This process is intended for setting up experiments using the 'cs754-k8s' profil
 ## Setup cluster
 
 0. (optional) create virtualenv
-1. cd to 'kube-cluster-setup/' dir
+1. cd to 'kube-cluster-setup/' dir for k8s or cd to 'hadoop-cluster-setup/' dir for k8s
 2. run 'pip install -r requirements.txt' 
 3. update 'ansible_host' values in 'hosts' file
 4. run './addHosts.sh' to add master & workers to ~/.ssh/known_hosts
-5. run './setup.sh <ssh username>' to setup cluster 
+5. run './setup.sh <ssh_username>' to setup cluster 

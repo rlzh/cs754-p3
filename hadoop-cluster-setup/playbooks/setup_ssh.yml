@@ -1,0 +1,34 @@
+- hosts: master
+  become: yes
+  become_user: ubuntu
+  tasks:
+    - name: gen ssh key      
+      shell: ssh-keygen -t rsa -P '' -f ~/.ssh/id_rsa >> ssh_key_gen.txt
+      args:
+        chdir: $HOME
+        creates: ssh_key_gen.txt
+    
+    - name: copy 'id_rsa.pub' to authorized_keys
+      shell: cat ~/.ssh/id_rsa.pub >> ~/.ssh/authorized_keys
+    
+    - name: get pub key
+      shell: cat ~/.ssh/id_rsa.pub
+      register: pub_key_raw
+
+    - name: set pub key
+      set_fact:
+        pub_key: "{{ pub_key_raw.stdout_lines[0] }}"
+
+    - name: add 'worker1' to known hosts
+      shell: ssh-keyscan {{ hostvars['worker1'].ansible_host }} >> ~/.ssh/known_hosts
+      
+    - name: add 'worker2' to known hosts
+      shell: ssh-keyscan {{ hostvars['worker2'].ansible_host }} >> ~/.ssh/known_hosts
+    
+- hosts: workers
+  become: yes
+  become_user: ubuntu
+  tasks:
+
+    - name: add pub key
+      shell: echo "{{ hostvars['master'].pub_key }}" >> ~/.ssh/authorized_keys

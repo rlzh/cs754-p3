@@ -1,0 +1,141 @@
+- hosts: all
+  become: yes
+  become_user: ubuntu
+  tasks:
+    - name: download hadoop
+      get_url:
+        url: http://apache.claz.org/hadoop/common/hadoop-3.1.3/hadoop-3.1.3.tar.gz
+        dest: ~/hadoop-3.1.3.tar.gz
+        mode: 0755
+    
+    - name: extract hadoop
+      unarchive:
+        src: ~/hadoop-3.1.3.tar.gz
+        dest: $HOME
+        creates: $HOME/hadoop
+        remote_src: yes
+
+    - name: rename hadoop
+      shell: mv $HOME/hadoop-3.1.3 $HOME/hadoop
+      args:
+        creates: $HOME/hadoop
+          
+
+    - name: setup env variables
+      blockinfile:
+        path: $HOME/.bashrc
+        block: |
+          export HADOOP_HOME=/home/ubuntu/hadoop
+          export PATH=$PATH:$HADOOP_HOME/bin
+          export PATH=$PATH:$HADOOP_HOME/sbin
+          export HADOOP_MAPRED_HOME=${HADOOP_HOME}
+          export HADOOP_COMMON_HOME=${HADOOP_HOME}
+          export HADOOP_HDFS_HOME=${HADOOP_HOME}
+          export YARN_HOME=${HADOOP_HOME}
+
+    - name: update ~/.bashrc
+      shell: source /home/ubuntu/.bashrc
+      args:
+        executable: /bin/bash
+
+    - name: update hadoop-env.sh
+      blockinfile:
+        path: $HOME/hadoop/etc/hadoop/hadoop-env.sh
+        block: |
+          export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
+
+    - name: update core-site.xml
+      blockinfile:
+        path: $HOME/hadoop/etc/hadoop/core-site.xml
+        insertafter: '<configuration>'
+        marker: '<!-- {mark} ANSIBLE MANAGED BLOCK -->'
+        block: |
+            <property>
+                <name>fs.defaultFS</name>
+                <value>hdfs://{{ hostvars['master']['ansible_default_ipv4']['address'] }}:9000</value>
+            </property>
+
+    - name: update hdfs-site.xml
+      blockinfile:
+        path: $HOME/hadoop/etc/hadoop/hdfs-site.xml
+        insertafter: '<configuration>'
+        marker: '<!-- {mark} ANSIBLE MANAGED BLOCK -->'
+        block: |
+            <property>
+                <name>dfs.replication</name>
+                <value>2</value>
+            </property>
+            <property>
+                <name>dfs.namenode.name.dir</name>
+                <value>file:///usr/local/hadoop/hdfs/data</value>
+            </property>
+            <property>
+                <name>dfs.datanode.data.dir</name>
+                <value>file:///usr/local/hadoop/hdfs/data</value>
+            </property>
+
+    - name: update yarn-site.xml
+      blockinfile:
+        path: $HOME/hadoop/etc/hadoop/yarn-site.xml
+        insertafter: '<configuration>'
+        marker: '<!-- {mark} ANSIBLE MANAGED BLOCK -->'
+        block: |
+            <property>
+                <name>yarn.nodemanager.aux-services</name>
+                <value>mapreduce_shuffle</value>
+            </property>
+            <property>
+                <name>yarn.nodemanager.aux-services.mapreduce.shuffle.class</name>
+                <value>org.apache.hadoop.mapred.ShuffleHandler</value>
+            </property>
+            <property>
+              <name>yarn.resourcemanager.hostname</name>
+              <value>{{ hostvars['master']['ansible_default_ipv4']['address'] }}</value>
+            </property>
+
+    - name: update mapred-site.xml
+      blockinfile:
+        path: $HOME/hadoop/etc/hadoop/mapred-site.xml
+        insertafter: '<configuration>'
+        marker: '<!-- {mark} ANSIBLE MANAGED BLOCK -->'
+        block: |
+            <property>
+                <name>mapreduce.jobtracker.address</name>
+                <value>{{ hostvars['master']['ansible_default_ipv4']['address'] }}:54311</value>
+            </property>
+            <property>
+                <name>mapreduce.framework.name</name>
+                <value>yarn</value>
+            </property>
+
+    - name: create data folder
+      shell: | 
+        sudo mkdir -p /usr/local/hadoop/hdfs/data
+        sudo chown ubuntu:ubuntu -R /usr/local/hadoop/hdfs/data
+        chmod 700 /usr/local/hadoop/hdfs/data
+
+    - name: create master file
+      blockinfile:
+        path: $HOME/hadoop/etc/hadoop/masters
+        create: yes
+        block: |
+          {{ hostvars['master']['ansible_default_ipv4']['address'] }}
+    
+    - name: create workers file
+      blockinfile:
+        path: $HOME/hadoop/etc/hadoop/workers
+        create: yes
+        block: |
+          {{ hostvars['worker1']['ansible_default_ipv4']['address'] }}
+          {{ hostvars['worker2']['ansible_default_ipv4']['address'] }}
+
+
+- hosts: master
+  become: yes
+  become_user: ubuntu
+  tasks:
+    - name: format HDFS
+      shell: hdfs namenode -format
+
+    - name: start cluster
+      shell: start.sh
