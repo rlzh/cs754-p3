@@ -1,9 +1,9 @@
 # cs754-p3
 
 
-# CloudLab K8s Cluster/Hadoop Setup Instructions
+# CloudLab K8s/Hadoop Cluster Setup Instructions
 
-This process is intended for setting up experiments using the 'cs754-k8s' profile on CloudLab
+This process is intended for setting up experiments using the 'cs754-k8s' profile on CloudLab. (i.e. 1 Master, 2 Workers, all running Ubuntu 18.04 LTS)
 
 To begin first cd to 'setup/' directory
 
@@ -24,10 +24,21 @@ To begin first cd to 'setup/' directory
         './setupK8s.sh <ssh_username>' to setup k8s 
     OR  
         './setupHadoop.sh <ssh_username>' to setup hadoop
+    when prompted with "SSH_PASSWORD:" enter passphrase for ssh key or leave blank if no passphrase was set.
 
-# K8s
 
-# Hadoop
+# K8s Instructions
+
+## Setup Nuclio
+
+Pre-req: 
+- setup K8s cluster
+
+1. cd to 'setup/' directory
+2. run './setupNuclio <docker_username> <docker_password>' to setup Nuclio on K8s
+3. (optional) run './nuclioDash.sh' to expose Nuclio Dashboard at http://localhost:8070
+
+# Hadoop Instructions
 
 Visit http://<master_node_ip>:9870 
 
