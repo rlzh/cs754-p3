@@ -1,0 +1,16 @@
+- hosts: 127.0.0.1
+  connection: local
+  tasks:
+    - name: setup nuclio on k8s
+      shell: |
+        kubectl create namespace nuclio
+        kubectl delete secret docker-registry registry-credentials --namespace nuclio
+        kubectl create secret docker-registry registry-credentials --namespace nuclio \
+          --docker-username {{ lookup('env','DOCKER_USER') }} \
+          --docker-password {{ lookup('env','DOCKER_PASS') }} \
+          --docker-server registry.hub.docker.com/{{ lookup('env','DOCKER_USER') }} \
+          --docker-email ignored@nuclio.io
+        kubectl delete -f https://raw.githubusercontent.com/nuclio/nuclio/master/hack/k8s/resources/nuclio-rbac.yaml
+        kubectl apply -f https://raw.githubusercontent.com/nuclio/nuclio/master/hack/k8s/resources/nuclio-rbac.yaml
+        kubectl delete -f https://raw.githubusercontent.com/nuclio/nuclio/master/hack/k8s/resources/nuclio.yaml
+        kubectl apply -f https://raw.githubusercontent.com/nuclio/nuclio/master/hack/k8s/resources/nuclio.yaml
