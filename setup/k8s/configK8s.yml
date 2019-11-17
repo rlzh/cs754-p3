@@ -1,0 +1,24 @@
+- hosts: master
+  become: yes
+  become_user: ubuntu
+  tasks:
+    - name: create cluster cert
+      shell: kubectl config view --flatten --minify > cluster-cert.txt
+      args:
+        chdir: $HOME
+        creates: cluster-cert.txt
+    
+    - name: fetch cluster cert
+      fetch:
+        src: $HOME/cluster-cert.txt
+        dest: ./config
+        flat: yes
+
+- hosts: 127.0.0.1
+  connection: local
+  tasks:
+    - name: update kube config
+      shell: mv ./config ~/.kube/config
+    
+
+
