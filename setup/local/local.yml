@@ -1,9 +1,29 @@
 - hosts: 127.0.0.1
   connection: local
+  gather_facts: false
   tasks:
-    - name: add 'master' to known hosts
-      shell: ssh-keyscan {{ hostvars['master'].ansible_host }} >> ~/.ssh/known_hosts
-    - name: add 'worker1' to known hosts
-      shell: ssh-keyscan {{ hostvars['worker1'].ansible_host }} >> ~/.ssh/known_hosts
-    - name: add 'worker2' to known hosts
-      shell: ssh-keyscan {{ hostvars['worker2'].ansible_host }} >> ~/.ssh/known_hosts
+    - name: get 'master' key scan
+      shell: echo $(ssh-keyscan {{ hostvars['master'].ansible_host }}) 
+      register: master_keyscan_raw
+    - name: set 'master' key scan
+      set_fact:
+        master_keyscan: "{{ master_keyscan_raw.stdout }}"
+    - name: get 'worker1' key scan
+      shell: echo $(ssh-keyscan {{ hostvars['worker1'].ansible_host }}) 
+      register: worker1_keyscan_raw
+    - name: set 'worker1' key scan
+      set_fact:
+        worker1_key_scan: "{{ worker1_keyscan_raw.stdout_lines[0] }}"
+    - name: get 'worker2' key scan
+      shell: echo $(ssh-keyscan {{ hostvars['worker2'].ansible_host }}) 
+      register: worker2_keyscan_raw
+    - name: set 'worker2' key scan
+      set_fact:
+        worker2_key_scan: "{{ worker2_keyscan_raw.stdout_lines[0] }}"
+    - name: add to known hosts
+      blockinfile:
+        path: ~/.ssh/known_hosts
+        block: |
+          {{ master_keyscan }}
+          {{ worker1_key_scan }}
+          {{ worker2_key_scan }}
