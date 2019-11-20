@@ -21,6 +21,13 @@
         state: present
         update_cache: true
         force_apt_get: true
+
+    - name: install pip
+      apt:
+        name: python-pip
+        state: present
+        update_cache: true
+        force_apt_get: true
     
     - name: install java
       apt:
@@ -28,5 +35,10 @@
         state: present
         update_cache: true
         force_apt_get: true
+
+    - name: install mrjob
+      become: yes
+      become_user: ubuntu
+      shell: sudo pip install mrjob
 
 

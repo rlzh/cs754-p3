@@ -92,6 +92,22 @@
               <name>yarn.resourcemanager.hostname</name>
               <value>{{ hostvars['master']['ansible_default_ipv4']['address'] }}</value>
             </property>
+            <property>
+                <name>yarn.nodemanager.resource.memory-mb</name>
+                <value>1536</value>
+            </property>
+            <property>
+                <name>yarn.scheduler.maximum-allocation-mb</name>
+                <value>1536</value>
+            </property>
+            <property>
+                <name>yarn.scheduler.minimum-allocation-mb</name>
+                <value>128</value>
+            </property>
+            <property>
+                <name>yarn.nodemanager.vmem-check-enabled</name>
+                <value>false</value>
+            </property>
 
     - name: update mapred-site.xml
       blockinfile:
@@ -106,6 +122,30 @@
             <property>
                 <name>mapreduce.framework.name</name>
                 <value>yarn</value>
+            </property>
+            <property>
+                <name>yarn.app.mapreduce.am.resource.mb</name>
+                <value>512</value>
+            </property>
+            <property>
+                <name>mapreduce.map.memory.mb</name>
+                <value>256</value>
+            </property>
+            <property>
+                <name>mapreduce.reduce.memory.mb</name>
+                <value>256</value>
+            </property>
+            <property>
+                <name>yarn.app.mapreduce.am.env</name>
+                <value>HADOOP_MAPRED_HOME=$HADOOP_MAPRED_HOME</value>
+            </property>
+            <property>
+                <name>mapreduce.map.env</name>
+                <value>HADOOP_MAPRED_HOME=$HADOOP_MAPRED_HOME</value>
+            </property>
+            <property>
+                <name>mapreduce.reduce.env</name>
+                <value>HADOOP_MAPRED_HOME=$HADOOP_MAPRED_HOME</value>
             </property>
 
     - name: create data folder
@@ -129,13 +169,17 @@
           {{ hostvars['worker1']['ansible_default_ipv4']['address'] }}
           {{ hostvars['worker2']['ansible_default_ipv4']['address'] }}
 
-
 - hosts: master
   become: yes
   become_user: ubuntu
   tasks:
     - name: format HDFS
+      become: yes
+      become_user: ubuntu
       shell: hdfs namenode -format
 
     - name: start cluster
-      shell: start.sh
+      shell: start-dfs.sh
+
+    - name: start yarn
+      shell: start-yarn.sh
