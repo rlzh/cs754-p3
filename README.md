@@ -36,14 +36,14 @@ Pre-req:
         - setup k8s cluster based on instructions above
     - running on minikube:
         - install minikube 
-        - install hyperkit
+        - install hyperkit (for macos) / virtualbox (for linux)
         - install docker-machine-driver-hyperkit?? (not sure about this for non-macOS)
 
 1. cd to 'setup/' directory
 2. run either 
         './setupNuclio <docker_username> <docker_password>' to setup Nuclio on k8s 
     OR 
-        './setupMiniNuclio' to setup Nuclio on minikube locally
+        './setupMiniNuclio <VM_DRIVER>' to setup Nuclio on minikube locally. VM_DRIVER should be hyperkit (for macOS) or virtualbox (for linux).
 3. (optional) run './nuclioDash.sh' to expose Nuclio Dashboard at http://localhost:8070
 
 

@@ -1,1 +1,1 @@
-ansible-playbook -i hosts ./miniNuclio/miniNuclio.yml
+ansible-playbook -i hosts ./miniNuclio/miniNuclio.yml -e VM_DRIVER=$1
