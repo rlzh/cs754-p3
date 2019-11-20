@@ -20,30 +20,30 @@ To begin first cd to 'setup/' directory
 2. run 'pip install -r requirements.txt' 
 3. update 'ansible_host' values in 'hosts' file
 4. run './addHosts.sh' to add master & workers to ~/.ssh/known_hosts
-5. run either 
-        './setupK8s.sh <ssh_username>' to setup k8s 
-    OR  
-        './setupHadoop.sh <ssh_username>' to setup Hadoop
-    when prompted with "SSH_PASSWORD:" enter passphrase for ssh key or leave blank if no passphrase was set.
+5. run either </br>
+        './setupK8s.sh <ssh_username>' to setup k8s </br>
+    OR </br>
+        './setupHadoop.sh <ssh_username>' to setup Hadoop </br>
+    (when prompted with "SSH_PASSWORD:" enter passphrase for ssh key or leave blank if no passphrase was set.)
 
 
 # Nuclio Instructions
 
 ## Setup 
 
-Pre-req: 
-    - running on k8s:
-        - setup k8s cluster based on instructions above
-    - running on minikube:
-        - install minikube 
-        - install hyperkit (for macos) / virtualbox (for linux)
-        - install docker-machine-driver-hyperkit?? (not sure about this for non-macOS)
+Pre-req on k8s:
+* setup k8s cluster based on instructions above
+
+Pre-req on minikube: 
+* install minikube 
+* install hyperkit 
+* install docker-machine-driver-hyperkit?? (not sure about this for non-macOS)
 
 1. cd to 'setup/' directory
-2. run either 
-        './setupNuclio <docker_username> <docker_password>' to setup Nuclio on k8s 
-    OR 
-        './setupMiniNuclio <VM_DRIVER>' to setup Nuclio on minikube locally. VM_DRIVER should be hyperkit (for macOS) or virtualbox (for linux).
+2. run either </br>
+        './setupNuclio <docker_username> <docker_password>' to setup Nuclio on k8s </br>
+    OR </br>
+        './setupMiniNuclio <VM_DRIVER>' to setup Nuclio on minikube locally. VM_DRIVER should be hyperkit (for macOS) or virtualbox (for linux). </br>>
 3. (optional) run './nuclioDash.sh' to expose Nuclio Dashboard at http://localhost:8070
 
 
