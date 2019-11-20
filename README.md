@@ -20,10 +20,10 @@ To begin first cd to 'setup/' directory
 2. run 'pip install -r requirements.txt' 
 3. update 'ansible_host' values in 'hosts' file
 4. run './addHosts.sh' to add master & workers to ~/.ssh/known_hosts
-5. run either 
-        './setupK8s.sh <ssh_username>' to setup k8s 
-    OR  
-        './setupHadoop.sh <ssh_username>' to setup Hadoop
+5. run either </br>
+        './setupK8s.sh <ssh_username>' to setup k8s </br>
+    OR </br>
+        './setupHadoop.sh <ssh_username>' to setup Hadoop </br>
     when prompted with "SSH_PASSWORD:" enter passphrase for ssh key or leave blank if no passphrase was set.
 
 
@@ -40,10 +40,10 @@ Pre-req:
         - install docker-machine-driver-hyperkit?? (not sure about this for non-macOS)
 
 1. cd to 'setup/' directory
-2. run either 
-        './setupNuclio <docker_username> <docker_password>' to setup Nuclio on k8s 
-    OR 
-        './setupMiniNuclio' to setup Nuclio on minikube locally
+2. run either </br>
+        './setupNuclio <docker_username> <docker_password>' to setup Nuclio on k8s </br>
+    OR </br>
+        './setupMiniNuclio' to setup Nuclio on minikube locally </br>
 3. (optional) run './nuclioDash.sh' to expose Nuclio Dashboard at http://localhost:8070
 
 
