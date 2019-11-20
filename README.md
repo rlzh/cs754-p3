@@ -43,7 +43,7 @@ Pre-req:
 2. run either 
         './setupNuclio <docker_username> <docker_password>' to setup Nuclio on k8s 
     OR 
-        './setupMiniNuclio' to setup Nuclio on minikube
+        './setupMiniNuclio' to setup Nuclio on minikube locally
 3. (optional) run './nuclioDash.sh' to expose Nuclio Dashboard at http://localhost:8070
 
 

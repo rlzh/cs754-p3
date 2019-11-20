@@ -1,0 +1,1 @@
+ansible-playbook -i hosts ./miniNuclio/miniNuclio.yml

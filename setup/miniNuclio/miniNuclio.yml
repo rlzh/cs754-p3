@@ -1,0 +1,15 @@
+- hosts: 127.0.0.1
+  connection: local
+  tasks:
+    - name: start minikube
+      shell: |
+        minikube start --vm-driver=hyperkit --extra-config=apiserver.authorization-mode=RBAC
+        kubectl apply -f https://raw.githubusercontent.com/nuclio/nuclio/master/hack/minikube/resources/kubedns-rbac.yaml
+        minikube ssh -- docker run -d -p 5000:5000 registry:2
+    - name: setup nuclio on minikube
+      shell: |
+        kubectl create namespace nuclio
+        kubectl delete -f https://raw.githubusercontent.com/nuclio/nuclio/master/hack/k8s/resources/nuclio-rbac.yaml
+        kubectl apply -f https://raw.githubusercontent.com/nuclio/nuclio/master/hack/k8s/resources/nuclio-rbac.yaml
+        kubectl delete -f https://raw.githubusercontent.com/nuclio/nuclio/master/hack/k8s/resources/nuclio.yaml
+        kubectl apply -f https://raw.githubusercontent.com/nuclio/nuclio/master/hack/k8s/resources/nuclio.yaml

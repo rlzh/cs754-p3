@@ -17,6 +17,12 @@
 - hosts: 127.0.0.1
   connection: local
   tasks:
+    - name: create .kube directory
+      file:
+        path: $HOME/.kube
+        state: directory
+        mode: 0755
+        
     - name: update kube config
       shell: mv ./config ~/.kube/config
     
