@@ -24,7 +24,7 @@ To begin first cd to 'setup/' directory
         './setupK8s.sh <ssh_username>' to setup k8s </br>
     OR </br>
         './setupHadoop.sh <ssh_username>' to setup Hadoop </br>
-    when prompted with "SSH_PASSWORD:" enter passphrase for ssh key or leave blank if no passphrase was set.
+    (when prompted with "SSH_PASSWORD:" enter passphrase for ssh key or leave blank if no passphrase was set.)
 
 
 # Nuclio Instructions
