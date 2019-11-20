@@ -31,13 +31,13 @@ To begin first cd to 'setup/' directory
 
 ## Setup 
 
-Pre-req: 
-    - running on k8s:
-        - setup k8s cluster based on instructions above
-    - running on minikube:
-        - install minikube 
-        - install hyperkit
-        - install docker-machine-driver-hyperkit?? (not sure about this for non-macOS)
+Pre-req on k8s:
+* setup k8s cluster based on instructions above
+
+Pre-req on minikube: 
+* install minikube 
+* install hyperkit 
+* install docker-machine-driver-hyperkit?? (not sure about this for non-macOS)
 
 1. cd to 'setup/' directory
 2. run either </br>
