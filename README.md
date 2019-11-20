@@ -36,7 +36,7 @@ Pre-req on k8s:
 
 Pre-req on minikube: 
 * install minikube 
-* install hyperkit 
+* install hyperkit (macOS) or virtualbox (linux)
 * install docker-machine-driver-hyperkit?? (not sure about this for non-macOS)
 
 1. cd to 'setup/' directory
