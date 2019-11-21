@@ -3,6 +3,7 @@
   tasks:
     - name: start minikube
       shell: |
+        minikube delete
         minikube start --vm-driver={{ VM_DRIVER }} --extra-config=apiserver.authorization-mode=RBAC
         kubectl apply -f https://raw.githubusercontent.com/nuclio/nuclio/master/hack/minikube/resources/kubedns-rbac.yaml
         minikube ssh -- docker run -d -p 5000:5000 registry:2
