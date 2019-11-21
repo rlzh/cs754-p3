@@ -44,7 +44,8 @@ Pre-req on minikube:
         './setupNuclio <docker_username> <docker_password>' to setup Nuclio on k8s </br>
     OR </br>
         './setupMiniNuclio <VM_DRIVER>' to setup Nuclio on minikube locally. VM_DRIVER should be hyperkit (for macOS) or virtualbox (for linux). </br>
-3. (optional) run './nuclioDash.sh' to expose Nuclio Dashboard at http://localhost:8070
+3. add <minikube ip>:5000 to docker insecure registries and restart docker (see https://stackoverflow.com/questions/42211380/add-insecure-registry-to-docker)
+4. (optional) run './nuclioDash.sh' to expose Nuclio Dashboard at http://localhost:8070
 
 
 ## Deploying Function
