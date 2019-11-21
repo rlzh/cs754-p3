@@ -36,14 +36,14 @@ Pre-req on k8s:
 
 Pre-req on minikube: 
 * install minikube (working version 1.0.0. latest doesn't seem to work)
-* install hyperkit (macOS) / virtualbox (linux)
+* install hyperkit (macOS) or virtualbox (linux)
 * install docker-machine-driver-hyperkit?? (not sure about this for non-macOS)
 
 1. cd to 'setup/' directory
 2. run either </br>
         './setupNuclio <docker_username> <docker_password>' to setup Nuclio on k8s </br>
     OR </br>
-        './setupMiniNuclio <VM_DRIVER>' to setup Nuclio on minikube locally. VM_DRIVER should be hyperkit (for macOS) or virtualbox (for linux). </br>>
+        './setupMiniNuclio <VM_DRIVER>' to setup Nuclio on minikube locally. VM_DRIVER should be hyperkit (for macOS) or virtualbox (for linux). </br>
 3. (optional) run './nuclioDash.sh' to expose Nuclio Dashboard at http://localhost:8070
 
 
