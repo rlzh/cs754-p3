@@ -31,31 +31,27 @@ To begin first cd to 'setup/' directory
 
 ## Setup 
 
-Pre-req shared:
-* nuctl 1.2.2 
-* kubectl 1.14.0
-* rabbitmq 3.8.1
-
-Pre-req only for k8s:
+Pre-reqs
+Shared:
+* install nuctl 1.2.2 
+* install kubectl 1.14.0
+k8s only:
 * setup k8s cluster based on instructions above
-
-Pre-req only for minikube: 
+minikube only: 
 * install minikube (working version 1.0.0. latest doesn't seem to work)
 * install hyperkit (macOS) or virtualbox (linux)
 * install docker-machine-driver-hyperkit?? (not sure about this for non-macOS)
+* install rabbitmq 3+
 
 1. cd to 'setup/' directory
 2. run either </br>
         './setupNuclio <docker_username> <docker_password>' to setup Nuclio on k8s </br>
     OR </br>
-        './setupMiniNuclio <VM_DRIVER>' to setup Nuclio on minikube locally. VM_DRIVER should be hyperkit (for macOS) or virtualbox (for linux). </br>
-3. add <minikube ip>:5000 to docker insecure registries and restart docker (see https://stackoverflow.com/questions/42211380/add-insecure-registry-to-docker)
-4. setup rabbitMQ:
-    * enable rabbitMQ management plugin with command 'rabbitmq-plugins enable rabbitmq_management'
-    * create user 'nuclio' & password 'nuclio' as 'admin' in rabbitMQ console at 'localhost:15672' and set default permissions (just click the "Set permission" button).
-    * create file 'nuclio/.env' and specify 'RMQ_HOST="<local/external network ip>"'
+        './setupMiniNuclio <VM_DRIVER>' to setup Nuclio on minikube locally. '<VM_DRIVER>' should be 'hyperkit' (for macOS) or 'virtualbox' (for linux). </br>
+3. add '<minikube ip>:5000' to docker insecure registries and restart docker (see https://stackoverflow.com/questions/42211380/add-insecure-registry-to-docker)
+4. create file 'nuclio/.env' and specify 'RMQ_HOST="<local/external network ip>"'
 5. (optional) run './nuclioDash.sh' to expose Nuclio Dashboard at http://localhost:8070
-
+6. (only for k8s) run './setupRabbitMQ.sh <ssh_username>' to setup rabbitMQ server on master node. (visit http://<master_node_ip>:15672 for console. Login credentials [user: nuclio, password: nuclio] ) 
 
 ## Deploying Function
 
@@ -64,7 +60,7 @@ Note: nuctl doesn't seem to be able to parse the 'meta.namespace' attribute in t
 
 ## WordCount MapReduce
 
-All settings related to MapReduce are found in nuclio/settings.py and values are loaded from 'nuclio/.env' file at run time.
+All settings related to MapReduce are found in 'nuclio/settings.py' and values are loaded from 'nuclio/.env' file at run time.
 
 
 # Hadoop Instructions
