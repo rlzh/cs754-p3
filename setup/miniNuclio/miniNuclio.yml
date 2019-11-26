@@ -10,9 +10,9 @@
     - name: setup nuclio on minikube
       shell: |
         kubectl create namespace nuclio
-        kubectl delete -f https://raw.githubusercontent.com/nuclio/nuclio/master/hack/k8s/resources/nuclio-rbac.yaml
-        kubectl apply -f https://raw.githubusercontent.com/nuclio/nuclio/master/hack/k8s/resources/nuclio-rbac.yaml
-        kubectl delete -f https://raw.githubusercontent.com/nuclio/nuclio/master/hack/k8s/resources/nuclio.yaml
-        kubectl apply -f https://raw.githubusercontent.com/nuclio/nuclio/master/hack/k8s/resources/nuclio.yaml
-    # - name: start rabbitmq server
-    #   shell: rabbitmq-server -detached
+        kubectl delete -f https://raw.githubusercontent.com/rlzh/cs754-p3/master/setup/miniNuclio/nuclio-rbac.yaml
+        kubectl apply -f https://raw.githubusercontent.com/rlzh/cs754-p3/master/setup/miniNuclio/nuclio-rbac.yaml
+        kubectl delete -f https://raw.githubusercontent.com/rlzh/cs754-p3/master/setup/miniNuclio/nuclio.yaml
+        kubectl apply -f https://raw.githubusercontent.com/rlzh/cs754-p3/master/setup/miniNuclio/nuclio.yaml
+    - name: start rabbitmq server
+      shell: rabbitmq-server -detached

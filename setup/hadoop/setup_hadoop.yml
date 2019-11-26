@@ -173,6 +173,11 @@
   become: yes
   become_user: ubuntu
   tasks:
+    - name: update ~/.bashrc
+      shell: source /home/ubuntu/.bashrc
+      args:
+        executable: /bin/bash
+        
     - name: format HDFS
       become: yes
       become_user: ubuntu
