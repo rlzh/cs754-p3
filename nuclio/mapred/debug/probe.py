@@ -1,15 +1,17 @@
 import pika
+import sys
 
 credentials = pika.PlainCredentials('nuclio', 'nuclio')
-connection = pika.BlockingConnection(pika.ConnectionParameters(host='10.32.128.199', port=5672, credentials=credentials))
+connection = pika.BlockingConnection(pika.ConnectionParameters(host='10.38.194.7', port=5672, credentials=credentials))
 channel = connection.channel()
 
-channel.exchange_declare(exchange='map_exchange', exchange_type='topic')
+channel.exchange_declare(exchange='mapred_exchange', exchange_type='topic')
 
 result = channel.queue_declare('', exclusive=True)
 queue_name = result.method.queue
 
-channel.queue_bind(exchange='map_exchange', queue=queue_name, routing_key='tasks.map')
+routing_key = ' '.join(sys.argv[1:]) or '#'
+channel.queue_bind(exchange='mapred_exchange', queue=queue_name, routing_key=routing_key)
 
 def callback(ch, method, properties, body):
     print(" [x] Received %r" % body)

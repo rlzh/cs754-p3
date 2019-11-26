@@ -4,68 +4,35 @@ import yaml
 
 
 class Function():
-    def __init__(self, function_name, deploy_info, config_info, debug=True):
+    def __init__(self, function_name, deploy_info, debug=True):
         self.function_name = function_name
         self.deploy_info = deploy_info
-        self.config_info = config_info
-        self.is_setup = False
         self.debug = debug
 
-    def setup(self):
-        if self.is_setup:
-            self.cleanup()
-        
         current_dir = os.getcwd()
         # set config path in deploy info here!
-        self.deploy_info.config_path = '{}/{}_config.yaml'.format(current_dir, self.function_name)
+        self.deploy_info.config_path = '{}/config/{}_config.yaml'.format(current_dir, self.function_name)
         # create copy of template
         cp_args = [
             'cp', 
-            '{}/{}'.format(current_dir, self.config_info.config_file_template), 
+            self.deploy_info.config_template_path, 
             self.deploy_info.config_path
         ]
         proc = subprocess.Popen(cp_args)
         proc.wait()
 
-        # set config values
+    def get_config_data(self):
+        # load config data
         with open(self.deploy_info.config_path) as file:
-            data = yaml.load(file, Loader=yaml.FullLoader)
-        spec = data['spec']
-        
-        # set env vars
-        env = []
-        spec['env'] = env
-        for var in self.config_info.env_vars:
-            new_var = {}
-            name = next(iter(var))
-            new_var['name'] = name
-            new_var['value'] = var[name]
-            env.append(new_var)
-        env.append({'name': 'DEBUG', 'value': ('True' if self.debug else 'False')})
+            return yaml.load(file, Loader=yaml.FullLoader)
 
-        # update handler name
-        spec['handler'] = "{}:entry_point".format(self.config_info.module_name)
-
-        # set rmq_url
-        rmq_trigger = spec['triggers']['rmqTrigger']
-        rmq_trigger['url'] = self.config_info.rmq_url
-        
-        # set exchange name
-        rmq_trigger['attributes']['exchangeName'] = self.config_info.exchange_name
-        
-        # set topics
-        rmq_trigger['attributes']['topics'] = self.config_info.topics
-
+    def apply_config(self, config_data):
         # update config file
-        with open(config_path, "w") as file:
-            yaml.dump(data)
-
-        self.is_setup = True
+        with open(self.deploy_info.config_path, "w") as file:
+            # print(config_data)
+            yaml.safe_dump(config_data, file)
     
     def deploy(self):
-        if self.is_setup == False:
-            print("Error not setup for deployment!")
-            return None
         args = [
             'nuctl', 'deploy', self.function_name, 
             '-p', self.deploy_info.function_path, 
@@ -73,29 +40,22 @@ class Function():
             '--namespace', self.deploy_info.namespace,
             '--registry', self.deploy_info.registry,
         ]
-        if self.run_registry != None:
-            args.append('--run-registry').append(self.deploy_info.run_registry)
+        if self.deploy_info.run_registry != None:
+            args.append('--run-registry')
+            args.append(self.deploy_info.run_registry)
         self.deploy_proc = subprocess.Popen(args)
+        self.deploy_proc.wait()
         return self.deploy_proc
 
     def cleanup(self):
-        # todo: 
-        # - delete config file 
-        self.is_setup = False
+        # delete copied config file
+        os.remove(self.deploy_info.config_path)
         
 
-class ConfigInfo():
-    def __init__(self, module_name, env_vars, rmq_url, exchange_name, topics):
-        self.module_name = module_name
-        self.env_vars = env_vars
-        self.rmq_url = rmq_url
-        self.topics = topics
-        self.exchange_name = exchange_name
-
 class DeployInfo():
-    def __init__(self, function_path, config_file_template, registry, namespace='nuclio', run_registry=None):
+    def __init__(self, function_path, config_template_path, registry, namespace='nuclio', run_registry=None):
         self.function_path = function_path
-        self.config_file_template = config_file_template
+        self.config_template_path = config_template_path
         self.config_path = None
         self.namespace = namespace
         self.registry = registry
