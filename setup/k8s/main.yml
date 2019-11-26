@@ -2,3 +2,4 @@
 - import_playbook: master.yml
 - import_playbook: workers.yml
 - import_playbook: configK8s.yml
+- import_playbook: metricsServer.yml

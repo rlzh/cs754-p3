@@ -1,0 +1,17 @@
+- hosts: master
+  become: yes
+  become_user: ubuntu
+  tasks:
+    - name: clone metrics-server
+      git: 
+        repo: https://github.com/kubernetes-sigs/metrics-server.git
+        dest: $HOME/metrics-server
+
+    - name: update metrics-server-deployment.yaml
+      get_url:
+        url: https://raw.githubusercontent.com/rlzh/cs754-p3/master/setup/k8s/metrics-server-deployment.yaml
+        dest: ~/metrics-server/deploy/1.8+/metrics-server-deployment.yaml
+        mode: '0755'
+
+    - name: init metrics-server
+      shell: kubectl apply -f ~/metrics-server/deploy/1.8+/
