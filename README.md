@@ -21,9 +21,9 @@ To begin first cd to 'setup/' directory
 3. update 'ansible_host' values in 'hosts' file
 4. run './addHosts.sh' to add master & workers to ~/.ssh/known_hosts
 5. run either </br>
-        './setupK8s.sh <ssh_username>' to setup k8s </br>
+        './setupK8s.sh <ssh_username>' to setup k8s 1.14.0 </br>
     OR </br>
-        './setupHadoop.sh <ssh_username>' to setup Hadoop </br>
+        './setupHadoop.sh <ssh_username>' to setup Hadoop 3.1.3</br>
     (when prompted with "SSH_PASSWORD:" enter passphrase for ssh key or leave blank if no passphrase was set.)
 
 
@@ -31,10 +31,15 @@ To begin first cd to 'setup/' directory
 
 ## Setup 
 
-Pre-req on k8s:
+Pre-req shared:
+* nuctl 1.2.2 
+* kubectl 1.14.0
+* rabbitmq 3.8.1
+
+Pre-req only for k8s:
 * setup k8s cluster based on instructions above
 
-Pre-req on minikube: 
+Pre-req only for minikube: 
 * install minikube (working version 1.0.0. latest doesn't seem to work)
 * install hyperkit (macOS) or virtualbox (linux)
 * install docker-machine-driver-hyperkit?? (not sure about this for non-macOS)
@@ -45,13 +50,21 @@ Pre-req on minikube:
     OR </br>
         './setupMiniNuclio <VM_DRIVER>' to setup Nuclio on minikube locally. VM_DRIVER should be hyperkit (for macOS) or virtualbox (for linux). </br>
 3. add <minikube ip>:5000 to docker insecure registries and restart docker (see https://stackoverflow.com/questions/42211380/add-insecure-registry-to-docker)
-4. (optional) run './nuclioDash.sh' to expose Nuclio Dashboard at http://localhost:8070
+4. setup rabbitMQ:
+    * enable rabbitMQ management plugin with command 'rabbitmq-plugins enable rabbitmq_management'
+    * create user 'nuclio' & password 'nuclio' as 'admin' in rabbitMQ console at 'localhost:15672' and set default permissions (just click the "Set permission" button).
+    * create file 'nuclio/.env' and specify 'RMQ_HOST="<local/external network ip>"'
+5. (optional) run './nuclioDash.sh' to expose Nuclio Dashboard at http://localhost:8070
 
 
 ## Deploying Function
 
 Note: nuctl doesn't seem to be able to parse the 'meta.namespace' attribute in the function config file. Need to specify 
 '--namespace nuclio' when deploying function via nuctl!!
+
+## WordCount MapReduce
+
+All settings related to MapReduce are found in nuclio/settings.py and values are loaded from 'nuclio/.env' file at run time.
 
 
 # Hadoop Instructions
