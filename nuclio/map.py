@@ -3,9 +3,13 @@ import pika
 import json
 import time
 
-# command to deploy this function (metadata.namespace in config file seems to be broken?!?)
+# command to deploy this function  (metadata.namespace in config file seems to be broken?!?)
 """
- nuctl deploy map -p map.py -f ./config/map_config.yaml --namespace nuclio --registry $(minikube ip):5000 --run-registry localhost:5000 
+for minikube:
+nuctl deploy map -p map.py -f ./config/map_config.yaml --namespace nuclio --registry $(minikube ip):5000 --run-registry localhost:5000 
+
+for k8s:
+nuctl deploy map -p map.py -f ./config/map_config.yaml --namespace nuclio --registry docker.io/<docker_username>
 """
 
 
@@ -38,7 +42,7 @@ def entry_point(context, event):
         for l in lines:
             messages.append(l)
         return "".join(messages)
-        # return str(fib(20))
+        # return str(fib(37))
 
 
 def init_context(context):

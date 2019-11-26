@@ -2,7 +2,7 @@ import pika
 import sys
 
 credentials = pika.PlainCredentials('nuclio', 'nuclio')
-connection = pika.BlockingConnection(pika.ConnectionParameters(host='10.38.194.7', port=5672, credentials=credentials))
+connection = pika.BlockingConnection(pika.ConnectionParameters(host='pc799.emulab.net', port=5672, credentials=credentials))
 channel = connection.channel()
 
 channel.exchange_declare(exchange='mapred_exchange', exchange_type='topic')

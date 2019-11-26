@@ -18,8 +18,8 @@ spec:
   runtime: python:2.7
   replicas: 1
   minReplicas: 1
-  maxReplicas: 100
-  targetCPU: 10
+  maxReplicas: 10
+  targetCPU: 5
   triggers:
     mapTrigger:
       kind: "http"
