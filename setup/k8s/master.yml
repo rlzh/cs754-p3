@@ -1,5 +1,6 @@
 - hosts: master
   become: yes
+  become_user: ubuntu
   tasks:
     - name: initialize the cluster
       become: yes

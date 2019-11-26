@@ -9,7 +9,7 @@
 
     - name: update metrics-server-deployment.yaml
       get_url:
-        url: https://raw.githubusercontent.com/rlzh/cs754-p3/master/setup/k8s/metrics-server-deployment.yaml
+        url: https://raw.githubusercontent.com/rlzh/cs754-p3/master/setup/k8s/object-definitions/metrics-server-deployment.yaml
         dest: ~/metrics-server/deploy/1.8+/metrics-server-deployment.yaml
         mode: '0755'
 
