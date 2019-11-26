@@ -50,7 +50,7 @@ To begin first cd to 'setup/' directory
         './setupNuclio <docker_username> <docker_password>' to setup Nuclio on k8s </br>
     OR </br>
         './setupMiniNuclio <VM_DRIVER>' to setup Nuclio on minikube locally. '<VM_DRIVER>' should be 'hyperkit' (for macOS) or 'virtualbox' (for linux). </br>
-3. add '<minikube ip>:5000' to docker insecure registries and restart docker (see https://stackoverflow.com/questions/42211380/add-insecure-registry-to-docker)
+3. add '<minikube_ip>:5000' to docker insecure registries and restart docker (see https://stackoverflow.com/questions/42211380/add-insecure-registry-to-docker)
 4. create file 'nuclio/.env' and specify 'RMQ_HOST="<local/external network ip>"' for minikube OR 'RMQ_HOST="<master_node_ip>"' for k8s
 5. (optional) run './nuclioDash.sh' to expose Nuclio Dashboard at http://localhost:8070
 6. (only for k8s) run './setupRabbitMQ.sh <ssh_username>' to setup rabbitMQ server on master node. (visit http://<master_node_ip>:15672 for console. Login credentials [user: nuclio, password: nuclio] ) 
