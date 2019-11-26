@@ -1,0 +1,28 @@
+- hosts: master
+  become: yes
+  become_user: ubuntu
+  tasks:
+    - name: install erlang
+      shell: |
+        wget -O- https://packages.erlang-solutions.com/ubuntu/erlang_solutions.asc | sudo apt-key add -
+        echo "deb https://packages.erlang-solutions.com/ubuntu bionic contrib" | sudo tee /etc/apt/sources.list.d/rabbitmq.list
+        sudo apt update
+        sudo apt -y install erlang
+    
+    - name: install rabbitmq
+      shell: |
+        wget -O- https://dl.bintray.com/rabbitmq/Keys/rabbitmq-release-signing-key.asc | sudo apt-key add -
+        wget -O- https://www.rabbitmq.com/rabbitmq-release-signing-key.asc | sudo apt-key add -
+        echo "deb https://dl.bintray.com/rabbitmq/debian $(lsb_release -sc) main" | sudo tee /etc/apt/sources.list.d/rabbitmq.list
+        sudo apt update
+        sudo apt -y install rabbitmq-server
+
+    - name: create user nuclio:nuclio
+      shell: |
+        sudo rabbitmqctl add_user nuclio nuclio
+        sudo rabbitmqctl set_user_tags nuclio administrator
+        sudo rabbitmqctl set_permissions -p / nuclio ".*" ".*" ".*"
+    
+    - name: enable rabbitmq management
+      shell: sudo rabbitmq-plugins enable rabbitmq_management
+    
