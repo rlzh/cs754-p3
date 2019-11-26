@@ -162,4 +162,6 @@ if __name__ == "__main__":
     # cleanup
     for mapper in mappers:
         mapper.cleanup()
+    for reducer in reducers:
+        reducer.cleanup()
 
