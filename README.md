@@ -27,33 +27,35 @@ To begin first cd to 'setup/' directory
     (when prompted with "SSH_PASSWORD:" enter passphrase for ssh key or leave blank if no passphrase was set.)
 
 
-# Nuclio Instructions
+# Nuclio
 
-## Setup 
+## Nuclio setup 
 
-Pre-reqs
-Shared:
+### Shared pre-reqs:
 * install nuctl 1.2.2 
 * install kubectl 1.14.0
-k8s only:
+
+### k8s only pre-reqs:
 * setup k8s cluster based on instructions above
-minikube only: 
+
+### minikube only pre-reqs:
 * install minikube (working version 1.0.0. latest doesn't seem to work)
 * install hyperkit (macOS) or virtualbox (linux)
 * install docker-machine-driver-hyperkit?? (not sure about this for non-macOS)
 * install rabbitmq 3+
 
+### Steps
 1. cd to 'setup/' directory
 2. run either </br>
         './setupNuclio <docker_username> <docker_password>' to setup Nuclio on k8s </br>
     OR </br>
         './setupMiniNuclio <VM_DRIVER>' to setup Nuclio on minikube locally. '<VM_DRIVER>' should be 'hyperkit' (for macOS) or 'virtualbox' (for linux). </br>
-3. add '<minikube ip>:5000' to docker insecure registries and restart docker (see https://stackoverflow.com/questions/42211380/add-insecure-registry-to-docker)
-4. create file 'nuclio/.env' and specify 'RMQ_HOST="<local/external network ip>"'
+3. add '<minikube_ip>:5000' to docker insecure registries and restart docker (see https://stackoverflow.com/questions/42211380/add-insecure-registry-to-docker)
+4. create file 'nuclio/.env' and specify 'RMQ_HOST="<local/external network ip>"' for minikube OR 'RMQ_HOST="<master_node_ip>"' for k8s
 5. (optional) run './nuclioDash.sh' to expose Nuclio Dashboard at http://localhost:8070
 6. (only for k8s) run './setupRabbitMQ.sh <ssh_username>' to setup rabbitMQ server on master node. (visit http://<master_node_ip>:15672 for console. Login credentials [user: nuclio, password: nuclio] ) 
 
-## Deploying Function
+## Deploying function
 
 Note: nuctl doesn't seem to be able to parse the 'meta.namespace' attribute in the function config file. Need to specify 
 '--namespace nuclio' when deploying function via nuctl!!
@@ -62,8 +64,10 @@ Note: nuctl doesn't seem to be able to parse the 'meta.namespace' attribute in t
 
 All settings related to MapReduce are found in 'nuclio/settings.py' and values are loaded from 'nuclio/.env' file at run time.
 
+MapReduce functions can be deployed by executing 'nuclio/deploy.py'. (Run 'nuclio/deploy.py -h' for help)
 
-# Hadoop Instructions
+
+# Hadoop
 
 Visit http://<master_node_ip>:9870 to verify setup.
 
