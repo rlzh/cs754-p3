@@ -94,7 +94,7 @@
             </property>
             <property>
                 <name>yarn.nodemanager.resource.memory-mb</name>
-                <value>40960</value>
+                <value>4096</value>
             </property>
             <property>
                 <name>yarn.scheduler.maximum-allocation-mb</name>
@@ -142,6 +142,7 @@
             <property>
               <name>mapreduce.reduce.java.opts</name>
               <value>-Xmx1638m</value>
+            </property>
             <property>
                 <name>yarn.app.mapreduce.am.env</name>
                 <value>HADOOP_MAPRED_HOME=$HADOOP_MAPRED_HOME</value>
@@ -180,18 +181,13 @@
   become: yes
   become_user: ubuntu
   tasks:
-    - name: update ~/.bashrc
-      shell: source /home/ubuntu/.bashrc
-      args:
-        executable: /bin/bash
-        
     - name: format HDFS
       become: yes
       become_user: ubuntu
-      shell: hdfs namenode -format
+      shell: ~/hadoop/bin/hdfs namenode -format
 
     - name: start cluster
-      shell: start-dfs.sh
+      shell: ~/hadoop/sbin/start-dfs.sh
 
     - name: start yarn
-      shell: start-yarn.sh
+      shell: ~/hadoop/sbin/start-yarn.sh
