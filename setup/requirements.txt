@@ -8,9 +8,8 @@ chardet==3.0.4
 Click==7.0
 cryptography==2.8
 docutils==0.15.2
-dotenv==0.0.5
 enum34==1.1.6
-futures==3.3.0
+filesplit==2.0.0
 google-api-core==1.14.3
 google-auth==1.7.1
 google-cloud-core==1.0.3
