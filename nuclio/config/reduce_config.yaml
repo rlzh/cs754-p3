@@ -15,11 +15,11 @@ spec:
       attributes:
         topics: ["tasks.reduce.#"]
         exchangeName: "mapred_exchange"
-    debugTrigger:
+    httpTrigger:
       maxWorkers: 4
       kind: "http"
       attributes:
-        port: 32001
+        port: 32002
   build:
     commands:
     - "apk update"

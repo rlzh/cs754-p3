@@ -17,6 +17,8 @@ def create_map_function(function_id, registry, run_registry=None):
     # load config data
     config_data = function.get_config_data()
     spec = config_data['spec']
+    if spec['env'] == None:
+        spec['env'] = []
 
     # update env vars
     update_env_var(spec['env'], name=settings.RMQ_HOST_KEY, value=settings.RMQ_HOST_VALUE)
@@ -26,6 +28,8 @@ def create_map_function(function_id, registry, run_registry=None):
     update_env_var(spec['env'], name=settings.NUM_REDUCERS_KEY, value=settings.NUM_REDUCERS_VALUE)
     update_env_var(spec['env'], name=settings.REDUCE_TOPIC_PREFIX_KEY, value=settings.REDUCE_TOPIC_PREFIX_VALUE)
     update_env_var(spec['env'], name=settings.EXCHANGE_NAME_KEY, value=settings.EXCHANGE_NAME_VALUE)
+    update_env_var(spec['env'], name=settings.HDFS_HOST_KEY, value=settings.HDFS_HOST_VALUE)
+
 
     # update rmq trigger info
     update_rmq_trigger(
@@ -59,6 +63,12 @@ def create_reduce_function(function_id, registry, run_registry=None):
     # load config data
     config_data = function.get_config_data()
     spec = config_data['spec']
+    if spec['env'] == None:
+        spec['env'] = []
+
+     # update env vars
+    update_env_var(spec['env'], name=settings.HDFS_OUTPUT_DIR_KEY, value=settings.HDFS_OUTPUT_DIR_VALUE)
+    update_env_var(spec['env'], name=settings.HDFS_HOST_KEY, value=settings.HDFS_HOST_VALUE)
 
     # update rmq trigger info
     update_rmq_trigger(

@@ -18,8 +18,8 @@ def entry_point(context, event):
 	# use the logger, outputting the event body
     if event.trigger.kind == "rabbitMq":
         channel = context.user_data.channel
-        message = event.body
-        
+        message = str(event.body)
+
         # publish to appropriate reducer queue
         num_reducers = int(os.environ.get('NUM_REDUCERS'))
         reducer_id = hash(message) % num_reducers
@@ -31,11 +31,15 @@ def entry_point(context, event):
         # debug log
         f = open("/tmp/messages.txt","a+")
         f.write("body: " + message + "\n")
+        f.write("pushed to: " + "exchange="+ os.environ.get('EXCHANGE_NAME') + " topic="+ reduce_topic + "\n")
         f.write("-"*10 + "\n")
         f.close()
         return ""
     else:
         # debug http GET check
+        # f = open("/tmp/messages.txt","a+")
+        # f.write("body: " + str(event.body) + "\n")
+        # f.write("-"*10 + "\n")
         messages = []
         f = open("/tmp/messages.txt","r+")
         lines = f.readlines()

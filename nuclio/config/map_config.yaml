@@ -3,7 +3,7 @@ kind: NuclioFunction
 spec:
   env:
     - name: RMQ_HOST
-      value: "10.38.194.7"
+      value: "10.32.128.199"
     - name: RMQ_PORT
       value: 5672
     - name: RMQ_USER
@@ -14,21 +14,25 @@ spec:
       value: tasks.reduce.
     - name: NUM_REDUCERS
       value: 3
+    - name: EXCHANGE_NAME
+      value: mapred_exchange
   handler: map:entry_point
   runtime: python:2.7
-  replicas: 1
-  minReplicas: 1
-  maxReplicas: 10
-  targetCPU: 5
+  replicas: 10
+  # minReplicas: 1
+  # maxReplicas: 10
+  # targetCPU: 5
   triggers:
     mapTrigger:
+      # workerAvailabilityTimeoutMilliseconds: 50000
+      # max_workers: 1000
       kind: "http"
       attributes:
         port: 32001
     rmqTrigger:
       max_workers: 100
       kind: "rabbit-mq"
-      url: "amqp://nuclio:nuclio@10.38.194.7:5672"
+      url: "amqp://nuclio:nuclio@10.32.128.199:5672"
       attributes:
         topics:
         - tasks.map.#
@@ -38,4 +42,3 @@ spec:
     - "apk update"
     - "apk add py-pip"
     - "pip install pika"
-    # - "pip install hdfs"
