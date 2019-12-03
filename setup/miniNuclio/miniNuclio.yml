@@ -14,5 +14,9 @@
         kubectl apply -f https://raw.githubusercontent.com/rlzh/cs754-p3/master/setup/miniNuclio/object-definitions/nuclio-rbac.yaml
         kubectl delete -f https://raw.githubusercontent.com/rlzh/cs754-p3/master/setup/miniNuclio/object-definitions/nuclio.yaml
         kubectl apply -f https://raw.githubusercontent.com/rlzh/cs754-p3/master/setup/miniNuclio/object-definitions/nuclio.yaml
-    - name: start rabbitmq server
-      shell: rabbitmq-server -detached
+    - name: setup traefik ingress controller
+      shell: |
+        kubectl apply -f https://raw.githubusercontent.com/rlzh/cs754-p3/master/setup/k8s/object-definitions/traefik-rbac.yaml
+        kubectl apply -f https://raw.githubusercontent.com/rlzh/cs754-p3/master/setup/k8s/object-definitions/traefik-deployment.yaml
+    # - name: start rabbitmq server
+    #   shell: rabbitmq-server -detached
