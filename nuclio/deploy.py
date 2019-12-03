@@ -67,8 +67,9 @@ def create_reduce_function(function_id, registry, run_registry=None):
         spec['env'] = []
 
      # update env vars
-    update_env_var(spec['env'], name=settings.HDFS_OUTPUT_DIR_KEY, value=settings.HDFS_OUTPUT_DIR_VALUE)
     update_env_var(spec['env'], name=settings.HDFS_HOST_KEY, value=settings.HDFS_HOST_VALUE)
+    output_dir = "" if settings.HDFS_OUTPUT_DIR_VALUE == "/" else settings.HDFS_OUTPUT_DIR_VALUE
+    update_env_var(spec['env'], name='REDUCER_OUTPUT_FILE_NAME', value="{}/out_{}.txt".format(output_dir, function_id))
 
     # update rmq trigger info
     update_rmq_trigger(
