@@ -33,15 +33,15 @@ def invoke_mappers(input_dir, mappers):
 
     map_index = 0 
     num_mappers = len(mappers)
-    for _ in range(1000):
-        # invoke a mapper for each file
-        for hdfs_file in hdfs_file_paths:
-            print("Pushing to queue: " + hdfs_file)
-            i = map_index % num_mappers
-            channel.basic_publish(exchange=settings.EXCHANGE_NAME_VALUE,
-                        routing_key='tasks.map.{}'.format(i),
-                        body=json.dumps({'hdfs_path': hdfs_file}))
-            map_index += 1
+
+    # invoke a mapper for each file
+    for hdfs_file in hdfs_file_paths:
+        print("Pushing to queue: " + hdfs_file)
+        i = map_index % num_mappers
+        channel.basic_publish(exchange=settings.EXCHANGE_NAME_VALUE,
+                    routing_key='tasks.map.{}'.format(i),
+                    body=json.dumps({'hdfs_path': hdfs_file}))
+        map_index += 1
     connection.close()
 
 if __name__ == "__main__":

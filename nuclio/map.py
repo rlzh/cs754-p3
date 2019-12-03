@@ -37,16 +37,12 @@ def entry_point(context, event):
         return ""
     else:
         # debug http GET check
-        # f = open("/tmp/messages.txt","a+")
-        # f.write("body: " + str(event.body) + "\n")
-        # f.write("-"*10 + "\n")
         messages = []
         f = open("/tmp/messages.txt","r+")
         lines = f.readlines()
         for l in lines:
             messages.append(l)
         return "".join(messages)
-        # return str(fib(37))
 
 
 def init_context(context):
