@@ -1,4 +1,8 @@
+aiohttp==3.6.2
 ansible==2.9.1
+async-timeout==3.0.1
+asyncio==3.4.3
+attrs==19.3.0
 boto3==1.10.22
 botocore==1.13.22
 cachetools==3.1.1
@@ -25,6 +29,7 @@ Jinja2==2.10.3
 jmespath==0.9.4
 MarkupSafe==1.1.1
 mrjob==0.6.12
+multidict==4.6.1
 pika==1.1.0
 protobuf==3.10.0
 pyasn1==0.4.8
@@ -41,3 +46,4 @@ s3transfer==0.2.1
 six==1.13.0
 typing==3.7.4.1
 urllib3==1.25.7
+yarl==1.4.1

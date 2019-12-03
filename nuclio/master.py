@@ -6,25 +6,12 @@ import os
 import shutil
 import settings
 import pydoop.hdfs as hdfs
-
+import asyncio
+from aiohttp import ClientSession
 from fsplit.filesplit import FileSplit
 from os import listdir
 from os.path import isfile, join
 
-
-# credentials = pika.PlainCredentials('nuclio', 'nuclio')
-# connection = pika.BlockingConnection(pika.ConnectionParameters(host='10.32.128.199', port=5672, credentials=credentials))
-# channel = connection.channel()
-# channel.exchange_declare(exchange='map_exchange',
-#                          exchange_type='topic')
-# message = ' '.join(sys.argv[1:]) or 'Hello World!'
-
-# channel.basic_publish(exchange='map_exchange',
-#                       routing_key='tasks.map',
-#                       body=message)
-
-# print(" [x] Sent %r" % (message))
-# connection.close()
 
 split_files = []
 hdfs_file_paths = []
@@ -50,7 +37,7 @@ def upload_to_hdfs(input_dir):
 
     # upload to hdfs
     host = settings.RMQ_HOST_VALUE
-    rfs = hdfs.hdfs(host='localhost', port=9000)
+    rfs = hdfs.hdfs(host=host, port=9000)
     lfs = hdfs.hdfs("", 0)
     for f in split_files:
         print("uploading: " + f)
@@ -69,6 +56,21 @@ def upload_to_hdfs(input_dir):
     # delete temp files
     shutil.rmtree(tmp_dir)
 
+async def invoke_http_trigger(url, param):
+    # issue http get request asynchronously
+    async with ClientSession() as session:
+        async with session.get(url, json=param) as response:
+            response = await response.read()
+            print(response)
+
+def invoke_mappers():
+    loop = asyncio.get_event_loop()
+    tasks = []
+    url = "http://{}:{}/map-0/latest".format(settings.RMQ_HOST_VALUE, settings.MAP_PORT_START)
+    for hdfs_file in hdfs_file_paths:
+        task = asyncio.ensure_future(invoke_http_trigger(url.format(url, {'hdfs_path': hdfs_file})))
+        tasks.append(task)
+    loop.run_until_complete(asyncio.wait(tasks))
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
@@ -81,6 +83,9 @@ if __name__ == '__main__':
     # chunk files in input dir and upload to hdfs
     upload_to_hdfs(args.input_dir)
 
+
+    # invoke mappers
+    invoke_mappers()
 
 
     
