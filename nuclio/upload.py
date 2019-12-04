@@ -33,7 +33,7 @@ def upload_to_hdfs(input_dir, output_dir, chunk_size):
         fs.split(callback=split_callback)
 
     # upload to hdfs
-    hdfs_client = InsecureClient("http://{}:9870".format(settings.HDFS_HOST_VALUE))
+    hdfs_client = InsecureClient("http://{}:9870".format(settings.HDFS_HOST_VALUE), user=settings.HDFS_USER_VALUE)
 
     # delete existing output dir
     if hdfs_client.content(output_dir, strict=False) != None:
