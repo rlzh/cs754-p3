@@ -2,7 +2,8 @@ import os
 from dotenv import load_dotenv
 load_dotenv()
 
-current_dir = os.getcwd()
+current_dir = os.path.dirname(os.path.realpath(__file__))
+print(current_dir)
 
 # Host 
 HOST = os.getenv('HOST', 'localhost')

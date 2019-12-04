@@ -9,7 +9,7 @@ class Function():
         self.deploy_info = deploy_info
         self.debug = debug
 
-        current_dir = os.getcwd()
+        current_dir = os.path.dirname(os.path.realpath(__file__))
         # set config path in deploy info here!
         self.deploy_info.config_path = '{}/config/{}_config.yaml'.format(current_dir, self.function_name)
         # create copy of template
