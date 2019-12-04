@@ -70,6 +70,7 @@ def create_reduce_function(function_id, registry, run_registry=None):
     update_env_var(spec['env'], name=settings.HDFS_HOST_KEY, value=settings.HDFS_HOST_VALUE)
     output_dir = "" if settings.HDFS_OUTPUT_DIR_VALUE == "/" else settings.HDFS_OUTPUT_DIR_VALUE
     update_env_var(spec['env'], name='REDUCER_OUTPUT_FILENAME', value="{}/out_{}.txt".format(output_dir, function_id))
+    update_env_var(spec['env'], name=settings.HDFS_CHUNK_COUNT_KEY, value=settings.HDFS_CHUNK_COUNT_VALUE)
     update_env_var(spec['env'], name=settings.NUM_MAPPERS_KEY, value=settings.NUM_MAPPERS_VALUE)
     update_env_var(spec['env'], name=settings.HDFS_USER_KEY, value=settings.HDFS_USER_VALUE)
 

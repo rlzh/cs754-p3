@@ -26,9 +26,9 @@ def entry_point(context, event):
             print("mapper completed!")
             hdfs_client = context.user_data.hdfs_client
             context.user_data.finished_mapper_counts += 1
-            num_mappers = int(os.environ.get("NUM_MAPPERS"))
-            print("num mappers="+str(num_mappers))
-            if context.user_data.finished_mapper_counts == num_mappers:
+            num_chunks = int(os.environ.get("HDFS_CHUNK_COUNT"))
+            print("num chunks="+str(num_chunks))
+            if context.user_data.finished_mapper_counts == num_chunks:
                 output_path =os.environ.get("REDUCER_OUTPUT_FILENAME")
                 print("write to hdfs! {}".format(output_path))
                 # write to output file on hdfs
