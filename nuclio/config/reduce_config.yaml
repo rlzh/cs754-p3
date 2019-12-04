@@ -7,13 +7,14 @@ spec:
   replicas: 1
   triggers:
     rmqTrigger:
+      maxWorkers: 1
       kind: "rabbit-mq"
       url: "amqp://nuclio:nuclio@10.38.194.7:5672"
       attributes:
         topics: ["tasks.reduce.#"]
         exchangeName: "mapred_exchange"
     httpTrigger:
-      maxWorkers: 4
+      maxWorkers: 1
       kind: "http"
       attributes:
         port: 32002
@@ -22,4 +23,3 @@ spec:
     - "apt update"
     - "pip install pika"
     - "pip install hdfs"
-    # - "pip install pydoop"    

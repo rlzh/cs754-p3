@@ -3,13 +3,12 @@ from dotenv import load_dotenv
 load_dotenv()
 
 current_dir = os.path.dirname(os.path.realpath(__file__))
-print(current_dir)
 
 # Host 
-HOST = os.getenv('HOST', 'localhost')
+HOST = os.getenv('HOST', None)
 
-if HOST == 'localhost':
-    print(("*" * 10) + " Warning: HOST set to 'localhost'. Please create .env file in nuclio/ directory and set proper HOST value! " + ("*" * 10))
+if HOST == None:
+    print("Error: HOST set to 'localhost'. Please create .env file in nuclio/ directory and set proper HOST value! " + ("*" * 10))
     
 
 # Rabbit MQ settings
@@ -36,12 +35,14 @@ HDFS_HOST_KEY = 'HDFS_HOST'
 HDFS_HOST_VALUE = os.getenv(HDFS_HOST_KEY, HOST)
 HDFS_OUTPUT_DIR_KEY = 'HDFS_OUT_DIR'
 HDFS_OUTPUT_DIR_VALUE = os.getenv(HDFS_OUTPUT_DIR_KEY, '/')
+HDFS_USER_KEY = 'HDFS_USER'
+HDFS_USER_VALUE = os.getenv(HDFS_USER_KEY, 'ubuntu')
 
 # File path settings
 MAP_CONFIG_TEMPLATE_PATH = '{}/config/map_config.yaml'.format(current_dir)
 REDUCE_CONFIG_TEMPLATE_PATH = '{}/config/reduce_config.yaml'.format(current_dir)
-MAP_PATH = '{}/map.py'.format(current_dir)
-REDUCE_PATH = '{}/reduce.py'.format(current_dir)
+MAP_PATH = '{}/mapred/map.py'.format(current_dir)
+REDUCE_PATH = '{}/mapred/reduce.py'.format(current_dir)
 # SORT_PATH = '{}/sort.py'.format(current_dir)
 
 DEBUG = True
@@ -49,6 +50,7 @@ DEBUG = True
 # Mapreduce settings
 NUM_REDUCERS_KEY = 'NUM_REDUCERS'
 NUM_REDUCERS_VALUE = 1
+NUM_MAPPERS_KEY = 'NUM_MAPPERS'
 NUM_MAPPERS_VALUE = 1
 
 # Nuclio settings

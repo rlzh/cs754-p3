@@ -35,8 +35,13 @@ def upload_to_hdfs(input_dir, output_dir, chunk_size):
     # upload to hdfs
     hdfs_client = InsecureClient("http://{}:9870".format(settings.HDFS_HOST_VALUE))
 
+    # delete existing output dir
+    if hdfs_client.content(output_dir, strict=False) != None:
+        hdfs_client.delete(output_dir, recursive=True)
+
     # upload files to tmp dir
     remote_path = hdfs_client.upload(hdfs_path="/tmp", local_path=tmp_dir, n_threads=-1, overwrite=True)
+    
     # rename to output_dir
     hdfs_client.rename("/tmp", output_dir)
 

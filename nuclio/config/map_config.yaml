@@ -17,7 +17,7 @@ spec:
     - name: EXCHANGE_NAME
       value: mapred_exchange
   handler: map:entry_point
-  runtime: python:2.7
+  runtime: python:3.6
   replicas: 1
   # minReplicas: 1
   # maxReplicas: 10
@@ -28,9 +28,9 @@ spec:
       # max_workers: 1000
       kind: "http"
       attributes:
-        port: 32001
+        port: 30000
     rmqTrigger:
-      max_workers: 100
+      max_workers: 10
       kind: "rabbit-mq"
       url: "amqp://nuclio:nuclio@10.32.128.199:5672"
       attributes:
@@ -39,6 +39,6 @@ spec:
         exchangeName: "mapred_exchange"
   build:
     commands:
-    - "apk update"
-    - "apk add py-pip"
+    - "apt update"
     - "pip install pika"
+    - "pip install hdfs"

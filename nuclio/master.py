@@ -21,6 +21,7 @@ def invoke_mappers(input_dir, mappers):
         if content[1]['type'] == 'FILE':
             hdfs_file_paths.append("{}/{}".format(input_dir, content[0]))
     
+    # setup rabbitMQ
     credentials = pika.PlainCredentials(settings.RMQ_USER_VALUE, settings.RMQ_PASS_VALUE)
     connection = pika.BlockingConnection(pika.ConnectionParameters(
             host=settings.RMQ_HOST_VALUE, 
@@ -63,13 +64,14 @@ if __name__ == "__main__":
     print(str(args) + "\n\n")
 
     if args.mode == None:
-        pass
+        print("Error: mode arg not set! '-m upload' or '-m run'")
     elif args.mode == "upload":
         # chunk & upload input files to hdfs
         upload.upload_to_hdfs(args.input_dir, args.output_dir, args.chunk_size)
     elif args.mode == "run":
          # update settings values from args
         settings.NUM_REDUCERS_VALUE = args.reducers
+        settings.NUM_MAPPERS_VALUE = args.mappers
         settings.HDFS_OUT_DIR_VALUE = args.output_dir
 
         # deploy map and reduce workers
@@ -92,6 +94,7 @@ if __name__ == "__main__":
             mapper.deploy()
         for reducer in reducers:
             reducer.deploy()
+            
         # cleanup
         for mapper in mappers:
             mapper.cleanup()
@@ -99,7 +102,7 @@ if __name__ == "__main__":
             reducer.cleanup()
 
         # invoke mappers
-        # invoke_mappers(args.input_dir, mappers)
+        invoke_mappers(args.input_dir, mappers)
 
         # invoke reducers
         # invoke_reducers(reducers)
