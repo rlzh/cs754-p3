@@ -10,7 +10,7 @@ class MRWordFreqCount(MRJob):
 
     def mapper(self, _, line):
         for word in WORD_RE.findall(line):
-            yield (word.lower(), 1)
+            yield (word.strip().lower().translate(str.maketrans('', '', string.punctuation)), 1)
 
     def combiner(self, word, counts):
         yield (word, sum(counts))
