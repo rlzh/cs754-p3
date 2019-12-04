@@ -3,6 +3,7 @@ import pika
 import sys
 import argparse
 import settings
+import json
 
 credentials = pika.PlainCredentials(settings.RMQ_USER_VALUE, settings.RMQ_PASS_VALUE)
 connection = pika.BlockingConnection(pika.ConnectionParameters(
@@ -14,7 +15,9 @@ connection = pika.BlockingConnection(pika.ConnectionParameters(
 channel = connection.channel()
 channel.exchange_declare(exchange=settings.EXCHANGE_NAME_VALUE,
                          exchange_type='topic')
-message = ' '.join(sys.argv[1:]) or 'Hello World!'
+k = {}
+# message = ' '.join(sys.argv[1:]) or 'Hello World!'
+message = json.dumps(k)
 
 channel.basic_publish(exchange=settings.EXCHANGE_NAME_VALUE,
                       routing_key='tasks.reduce.0',

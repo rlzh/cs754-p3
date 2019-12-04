@@ -18,7 +18,7 @@ spec:
       value: mapred_exchange
   handler: map:entry_point
   runtime: python:2.7
-  replicas: 10
+  replicas: 1
   # minReplicas: 1
   # maxReplicas: 10
   # targetCPU: 5

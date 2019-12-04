@@ -98,7 +98,7 @@ if __name__ == "__main__":
             reducer.cleanup()
 
         # invoke mappers
-        invoke_mappers(args.input_dir, mappers)
+        # invoke_mappers(args.input_dir, mappers)
 
         # invoke reducers
         # invoke_reducers(reducers)

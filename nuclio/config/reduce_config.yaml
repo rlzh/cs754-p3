@@ -3,11 +3,8 @@ kind: NuclioFunction
 spec:
   env:
   handler: reduce:entry_point
-  runtime: python:2.7
+  runtime: python:3.6
   replicas: 1
-  minReplicas: 1
-  maxReplicas: 5
-  targetCPU: 10
   triggers:
     rmqTrigger:
       kind: "rabbit-mq"
@@ -22,7 +19,7 @@ spec:
         port: 32002
   build:
     commands:
-    - "apk update"
-    - "apk add py-pip"
+    - "apt update"
     - "pip install pika"
+    - "pip install hdfs"
     # - "pip install pydoop"    
