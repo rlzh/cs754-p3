@@ -111,7 +111,7 @@ def update_http_trigger(triggers, port, target_name=None):
             # trigger not existing in config -> create new
             triggers[target_name] = {
                 'kind': 'http',
-                'maxWorkers': 100,
+                'maxWorkers': 3,
                 'attributes': {},
             }
         # update trigger values
@@ -129,7 +129,7 @@ def update_rmq_trigger(triggers, url, exchange_name, topics, target_name=None):
             # trigger not existing in config -> create new
             triggers[target_name] = {
                 'kind': 'rabbit-mq',
-                'maxWorkers': 100,
+                'maxWorkers': 3,
                 'attributes': {},
             }
         # update trigger values
