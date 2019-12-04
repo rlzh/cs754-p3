@@ -8,17 +8,18 @@ import asyncio
 import pika
 import json
 import time
-import pydoop.hdfs as hdfs
+from hdfs import InsecureClient
 from urllib.parse import urlparse
 
 def invoke_mappers(input_dir, mappers):
     # fetch hdfs file paths
     hdfs_file_paths = []
-    rfs = hdfs.hdfs(host=settings.HDFS_HOST_VALUE, port=9000)
-    contents = rfs.list_directory(input_dir)
+    hdfs_client = InsecureClient("http://{}:9870".format(settings.HDFS_HOST_VALUE))
+    contents = hdfs_client.list(input_dir, status=True)
+    input_dir = "" if input_dir == "/" else input_dir
     for content in contents:
-        if content['kind'] == 'file':
-            hdfs_file_paths.append(urlparse(content["path"]).path)
+        if content[1]['type'] == 'FILE':
+            hdfs_file_paths.append("{}/{}".format(input_dir, content[0]))
     
     credentials = pika.PlainCredentials(settings.RMQ_USER_VALUE, settings.RMQ_PASS_VALUE)
     connection = pika.BlockingConnection(pika.ConnectionParameters(

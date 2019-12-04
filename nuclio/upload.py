@@ -4,7 +4,7 @@ import argparse
 import os
 import shutil
 import settings
-import pydoop.hdfs as hdfs
+from hdfs import InsecureClient
 from fsplit.filesplit import FileSplit
 from os import listdir
 from os.path import isfile, join
@@ -22,7 +22,7 @@ def upload_to_hdfs(input_dir, output_dir, chunk_size):
     files = [os.path.abspath("{}/{}".format(input_dir, f)) for f in listdir(input_dir) if isfile(join(input_dir, f))]
     tmp_dir = "{}/tmp".format(input_dir)
 
-    # set temp dir
+    # setup temp dir
     if os.path.isdir(tmp_dir):
         shutil.rmtree(tmp_dir)
     os.mkdir(tmp_dir)
@@ -33,27 +33,19 @@ def upload_to_hdfs(input_dir, output_dir, chunk_size):
         fs.split(callback=split_callback)
 
     # upload to hdfs
-    print()
-    rfs = hdfs.hdfs(host=settings.HDFS_HOST_VALUE, port=9000)
-    lfs = hdfs.hdfs("", 0)
-    # create output dir if not exist
-    if rfs.exists(output_dir) == False:
-        rfs.create_directory(output_dir)
-    output_dir = "" if output_dir == "/" else output_dir
-    for f in split_files:
-        hdfs_path = "{}/{}".format(output_dir, os.path.basename(f))
-        print("uploading: " + f + " to " + hdfs_path)
-        hdfs_file_paths.append(hdfs_path)
-        lfs.copy(from_path=f, to_hdfs=rfs, to_path=hdfs_path)
-    rfs.close()
-    lfs.close()
+    hdfs_client = InsecureClient("http://{}:9870".format(settings.HDFS_HOST_VALUE))
 
-    print("{} files uploaded to hdfs host '{}'  ({} file chunks total)".format(
+    # upload files to tmp dir
+    remote_path = hdfs_client.upload(hdfs_path="/tmp", local_path=tmp_dir, n_threads=-1, overwrite=True)
+    # rename to output_dir
+    hdfs_client.rename("/tmp", output_dir)
+
+    print("{} files uploaded to hdfs host '{}{}'  ({} file chunks total)".format(
         len(files),
         settings.HDFS_HOST_VALUE,
+        output_dir,
         len(split_files),
     ))
-
     # delete temp files
     shutil.rmtree(tmp_dir)
 
