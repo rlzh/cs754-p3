@@ -73,6 +73,13 @@ def create_reduce_function(function_id, registry, run_registry=None):
     update_env_var(spec['env'], name=settings.HDFS_CHUNK_COUNT_KEY, value=settings.HDFS_CHUNK_COUNT_VALUE)
     update_env_var(spec['env'], name=settings.NUM_MAPPERS_KEY, value=settings.NUM_MAPPERS_VALUE)
     update_env_var(spec['env'], name=settings.HDFS_USER_KEY, value=settings.HDFS_USER_VALUE)
+    update_env_var(spec['env'], name=settings.DONE_TOPIC_KEY, value=settings.DONE_TOPIC_VALUE)
+    update_env_var(spec['env'], name=settings.RMQ_HOST_KEY, value=settings.RMQ_HOST_VALUE)
+    update_env_var(spec['env'], name=settings.RMQ_PORT_KEY, value=settings.RMQ_PORT_VALUE)
+    update_env_var(spec['env'], name=settings.RMQ_USER_KEY, value=settings.RMQ_USER_VALUE)
+    update_env_var(spec['env'], name=settings.RMQ_PASS_KEY, value=settings.RMQ_PASS_VALUE)
+    update_env_var(spec['env'], name=settings.EXCHANGE_NAME_KEY, value=settings.EXCHANGE_NAME_VALUE)
+
 
     # update rmq trigger info
     update_rmq_trigger(

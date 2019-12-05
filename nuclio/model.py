@@ -1,6 +1,7 @@
 import os
 import subprocess
 import yaml
+from subprocess import DEVNULL, STDOUT
 
 
 class Function():
@@ -43,13 +44,21 @@ class Function():
         if self.deploy_info.run_registry != None:
             args.append('--run-registry')
             args.append(self.deploy_info.run_registry)
-        self.deploy_proc = subprocess.Popen(args)
-        self.deploy_proc.wait()
+        self.deploy_proc = subprocess.Popen(args)#, stdout=DEVNULL, stderr=STDOUT)
+        # self.deploy_proc.wait()
         return self.deploy_proc
 
     def cleanup(self):
         # delete copied config file
         os.remove(self.deploy_info.config_path)
+        args = [
+            'nuctl', 'delete', 'function', 
+            self.function_name, 
+            '--namespace', self.deploy_info.namespace,
+        ]
+        self.deploy_proc = subprocess.Popen(args)#, stdout=DEVNULL, stderr=STDOUT)
+        self.deploy_proc.wait()
+        return self.deploy_proc
         
 
 class DeployInfo():

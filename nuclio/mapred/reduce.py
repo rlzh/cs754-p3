@@ -2,6 +2,7 @@ import os
 import json
 import time
 import pprint as pp
+import pika
 from collections import defaultdict
 from hdfs import InsecureClient
 
@@ -14,7 +15,7 @@ def is_key_value(x):
     return len(x) != 0
 
 def entry_point(context, event):
-    context.logger.info_with("Got invoked", trigger_kind=event.trigger.kind)
+    # context.logger.info_with("Got invoked", trigger_kind=event.trigger.kind)
 	# use the logger, outputting the event body
     key_count = context.user_data.key_count
     if event.trigger.kind == "rabbitMq": 
@@ -37,6 +38,13 @@ def entry_point(context, event):
                     data=pp.pformat(dict(key_count)),
                     encoding="utf-8"
                 )
+                channel = context.user_data.channel
+                # publish to done topic
+                channel.basic_publish(
+                    exchange=os.environ.get('EXCHANGE_NAME'),
+                    routing_key=os.environ.get('DONE_TOPIC'),
+                    body="Reduce task done!"
+                )
     else:
         return "key_count len: {}, finished mappers: {}".format(
             len(key_count),
@@ -49,6 +57,20 @@ def init_context(context):
     setattr(context.user_data, "key_count", key_count)
     setattr(context.user_data, "finished_mapper_counts", finished_mapper_counts)
     
+    # init RabbitMQ
+    user_name = os.environ.get('RMQ_USER')
+    password = os.environ.get('RMQ_PASS')
+    rmq_host = os.environ.get('RMQ_HOST')
+    rmq_port = os.environ.get('RMQ_PORT')
+    exchange_name = os.environ.get('EXCHANGE_NAME')
+    credentials = pika.PlainCredentials(user_name, password)
+    parameters = pika.ConnectionParameters(host=rmq_host, port=rmq_port, credentials=credentials)
+    connection = pika.BlockingConnection(parameters)
+    channel = connection.channel()
+    channel.exchange_declare(exchange=exchange_name,
+                         exchange_type='topic')   
+    setattr(context.user_data, 'channel', channel)
+
      # init HDFS
     hdfs_host = os.environ.get("HDFS_HOST")
     hdfs_user = os.environ.get("HDFS_USER")
