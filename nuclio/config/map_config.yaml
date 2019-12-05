@@ -25,12 +25,10 @@ spec:
   triggers:
     mapTrigger:
       # workerAvailabilityTimeoutMilliseconds: 50000
-      # max_workers: 1000
       kind: "http"
       attributes:
         port: 30000
     rmqTrigger:
-      max_workers: 10
       kind: "rabbit-mq"
       url: "amqp://nuclio:nuclio@10.32.128.199:5672"
       attributes:
