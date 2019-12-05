@@ -88,20 +88,6 @@ def entry_point(context, event):
     return ""
 
 def init_context(context):
-    # init RabbitMQ
-    user_name = os.environ.get('RMQ_USER')
-    password = os.environ.get('RMQ_PASS')
-    rmq_host = os.environ.get('RMQ_HOST')
-    rmq_port = os.environ.get('RMQ_PORT')
-    exchange_name = os.environ.get('EXCHANGE_NAME')
-    credentials = pika.PlainCredentials(user_name, password)
-    parameters = pika.ConnectionParameters(host=rmq_host, port=rmq_port, credentials=credentials)
-    connection = pika.BlockingConnection(parameters)
-    channel = connection.channel()
-    channel.exchange_declare(exchange=exchange_name,
-                         exchange_type='topic')   
-    setattr(context.user_data, 'channel', channel)
-
     # init HDFS
     hdfs_host = os.environ.get('HDFS_HOST')
     hdfs_user = os.environ.get("HDFS_USER")
