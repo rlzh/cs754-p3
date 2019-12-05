@@ -136,14 +136,15 @@ def update_rmq_trigger(triggers, url, exchange_name, topics, target_name=None):
             # trigger not existing in config -> create new
             triggers[target_name] = {
                 'kind': 'rabbit-mq',
-                'maxWorkers': 3,
                 'attributes': {},
             }
         # update trigger values
         trigger_data = triggers[target_name]
         trigger_data['url'] = url
+        trigger_data['maxWorkers'] = 3
         trigger_data['attributes']['topics'] = topics
         trigger_data['attributes']['exchangeName'] = exchange_name
+
 
 
 def update_env_var(env_vars, name, value):

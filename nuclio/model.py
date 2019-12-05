@@ -21,6 +21,7 @@ class Function():
         ]
         proc = subprocess.Popen(cp_args)
         proc.wait()
+        self.is_deployed = False
 
     def get_config_data(self):
         # load config data
@@ -34,6 +35,7 @@ class Function():
             yaml.safe_dump(config_data, file)
     
     def deploy(self):
+        self.is_deployed = True
         args = [
             'nuctl', 'deploy', self.function_name, 
             '-p', self.deploy_info.function_path, 
@@ -51,6 +53,10 @@ class Function():
     def cleanup(self):
         # delete copied config file
         os.remove(self.deploy_info.config_path)
+
+        if self.is_deployed == False:
+            return
+
         args = [
             'nuctl', 'delete', 'function', 
             self.function_name, 
@@ -58,6 +64,7 @@ class Function():
         ]
         self.deploy_proc = subprocess.Popen(args)#, stdout=DEVNULL, stderr=STDOUT)
         self.deploy_proc.wait()
+        self.is_deployed = False
         return self.deploy_proc
         
 
