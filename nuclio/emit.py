@@ -18,10 +18,10 @@ channel.exchange_declare(exchange=settings.EXCHANGE_NAME_VALUE,
 k = {}
 message = ' '.join(sys.argv[1:]) or 'Hello World!'
 # message = json.dumps(k)
+for i in range(10):
+    channel.basic_publish(exchange=settings.EXCHANGE_NAME_VALUE,
+                        routing_key='tasks.map.0',
+                        body=message)
 
-channel.basic_publish(exchange=settings.EXCHANGE_NAME_VALUE,
-                      routing_key='tasks.reduce.0',
-                      body=message)
-
-print(" [x] Sent %r" % (message))
+    print(" [x] Sent %r" % (message))
 connection.close()

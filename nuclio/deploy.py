@@ -36,13 +36,15 @@ def create_map_function(function_id, registry, run_registry=None):
         spec['triggers'], 
         settings.RMQ_URL_VALUE, 
         settings.EXCHANGE_NAME_VALUE, 
-        ["{}{}".format(settings.MAP_TOPIC_PREFIX_VALUE, function_id)]
+        ["{}{}".format(settings.MAP_TOPIC_PREFIX_VALUE, function_id)],
+        max_workers=3
     )
 
     # update http trigger
     update_http_trigger(
         spec['triggers'],
         settings.MAP_PORT_START + function_id,
+        max_workers=3,
     )
 
     # apply config changes
@@ -86,13 +88,15 @@ def create_reduce_function(function_id, registry, run_registry=None):
         spec['triggers'], 
         settings.RMQ_URL_VALUE, 
         settings.EXCHANGE_NAME_VALUE, 
-        ["{}{}".format(settings.REDUCE_TOPIC_PREFIX_VALUE, function_id)]
+        ["{}{}".format(settings.REDUCE_TOPIC_PREFIX_VALUE, function_id)],
+        max_workers=3,
     )
 
     # update http trigger
     update_http_trigger(
         spec['triggers'],
         settings.REDUCE_PORT_START + function_id,
+        max_workers=3,
     )
 
     # apply config changes
@@ -107,30 +111,30 @@ def create_deploy_info(function_path, config_template_path, registry, run_regist
         run_registry=run_registry
     )
     
-def update_http_trigger(triggers, port, target_name=None):
+def update_http_trigger(triggers, port, target_name=None, max_workers=3):
     if target_name == None:
         for trigger_name in triggers:
             trigger_data = triggers[trigger_name]
             if trigger_data['kind'] == 'http':
-                update_http_trigger(triggers, port, target_name=trigger_name)
+                update_http_trigger(triggers, port, target_name=trigger_name, max_workers=max_workers)
     else:
         if target_name not in triggers:
             # trigger not existing in config -> create new
             triggers[target_name] = {
                 'kind': 'http',
-                'maxWorkers': 3,
                 'attributes': {},
             }
         # update trigger values
         trigger_data = triggers[target_name]
+        trigger_data['maxWorkers'] = max_workers
         trigger_data['attributes']['port'] = port
 
-def update_rmq_trigger(triggers, url, exchange_name, topics, target_name=None):
+def update_rmq_trigger(triggers, url, exchange_name, topics, target_name=None, max_workers=3):
     if target_name == None:
         for trigger_name in triggers:
             trigger_data = triggers[trigger_name]
             if trigger_data['kind'] == 'rabbit-mq':
-                update_rmq_trigger(triggers, url, exchange_name, topics, target_name=trigger_name)
+                update_rmq_trigger(triggers, url, exchange_name, topics, target_name=trigger_name, max_workers=max_workers)
     else:
         if target_name not in triggers:
             # trigger not existing in config -> create new
@@ -141,7 +145,7 @@ def update_rmq_trigger(triggers, url, exchange_name, topics, target_name=None):
         # update trigger values
         trigger_data = triggers[target_name]
         trigger_data['url'] = url
-        trigger_data['maxWorkers'] = 3
+        trigger_data['maxWorkers'] = max_workers
         trigger_data['attributes']['topics'] = topics
         trigger_data['attributes']['exchangeName'] = exchange_name
 
