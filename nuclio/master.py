@@ -13,11 +13,11 @@ from urllib.parse import urlparse
 
 
 # global vars
-reducer_finish_count = 0
+reducer_completion_count = 0
+mapper_completion_count = 0
 
-def get_hdfs_paths(input_dir):
+def get_hdfs_paths(hdfs_client, input_dir):
     hdfs_file_paths = []
-    hdfs_client = InsecureClient("http://{}:9870".format(settings.HDFS_HOST_VALUE))
     contents = hdfs_client.list(input_dir, status=True)
     input_dir = "" if input_dir == "/" else input_dir
     for content in contents:
@@ -25,13 +25,16 @@ def get_hdfs_paths(input_dir):
             hdfs_file_paths.append("{}/{}".format(input_dir, content[0]))
     return hdfs_file_paths
 
-def create_out_dir(output_dir):
+def create_out_dir(hdfs_client, output_dir):
     if output_dir == "/":
         return
-    hdfs_client = InsecureClient("http://{}:9870".format(settings.HDFS_HOST_VALUE))
     if hdfs_client.content(output_dir, strict=False) != None:
         hdfs_client.delete(output_dir, recursive=True)
     hdfs_client.makedirs(output_dir)
+
+def delete_tmp_dir(hdfs_client):
+    if hdfs_client.content("/tmp", strict=False) != None:
+        hdfs_client.delete("/tmp", recursive=True)
 
 def invoke_mappers(channel, input_dir, hdfs_file_paths, mappers):
     map_index = 0 
@@ -46,22 +49,35 @@ def invoke_mappers(channel, input_dir, hdfs_file_paths, mappers):
                     body=json.dumps({'hdfs_path': hdfs_file}))
         map_index += 1
 
-def wait_for_reducers(channel):
+def invoke_reducers(channel, input_dir, reducers):
+    for i in range(len(reducers)):
+        channel.basic_publish(exchange=settings.EXCHANGE_NAME_VALUE,
+                    routing_key='tasks.reduce.{}'.format(i),
+                    body="")
+
+def wait_for_completion(channel, callback):
     result = channel.queue_declare('', exclusive=True)
     queue_name = result.method.queue
     channel.queue_bind(exchange=settings.EXCHANGE_NAME_VALUE, queue=queue_name, routing_key=settings.DONE_TOPIC_VALUE)   
-    channel.basic_consume(queue=queue_name, on_message_callback=probe_callback, auto_ack=True)
+    channel.basic_consume(queue=queue_name, on_message_callback=callback, auto_ack=True)
     print(' [*] Waiting for messages...')
     channel.start_consuming()
-    print(" [*] Done! ")
+    print(" [*] Tasks complete! ")
 
-def probe_callback(ch, method, properties, body):
+def map_probe_callback(ch, method, properties, body):
         print(" [x] Received %r" % body)
-        global reducer_finish_count 
-        reducer_finish_count += 1
-        print(" [X] Count {}".format(reducer_finish_count))
-        if reducer_finish_count == settings.NUM_REDUCERS_VALUE:
+        global mapper_completion_count 
+        mapper_completion_count += 1
+        if mapper_completion_count == settings.NUM_MAPPERS_VALUE:
             ch.stop_consuming()
+
+def reduce_probe_callback(ch, method, properties, body):
+        print(" [x] Received %r" % body)
+        global reducer_completion_count 
+        reducer_completion_count += 1
+        if reducer_completion_count == settings.NUM_REDUCERS_VALUE:
+            ch.stop_consuming()
+
 
 
 if __name__ == "__main__":
@@ -81,18 +97,14 @@ if __name__ == "__main__":
     args = parser.parse_args()
     print(str(args) + "\n\n")
 
+    hdfs_client = InsecureClient("http://{}:9870".format(settings.HDFS_HOST_VALUE), user=settings.HDFS_USER_VALUE)
+
     if args.mode == None:
         print("Error: mode arg not set! '-m upload' or '-m run'")
     elif args.mode == "upload":
         # chunk & upload input files to hdfs
         upload.upload_to_hdfs(args.input_dir, args.output_dir, args.chunk_size)
     elif args.mode == "run":
-        # get hdfs file paths
-        hdfs_file_paths = get_hdfs_paths(args.input_dir)
-        
-        # create output dir
-        create_out_dir(args.output_dir)
-
         # setup rabbitMQ connection
         credentials = pika.PlainCredentials(settings.RMQ_USER_VALUE, settings.RMQ_PASS_VALUE)
         connection = pika.BlockingConnection(pika.ConnectionParameters(
@@ -106,6 +118,12 @@ if __name__ == "__main__":
             exchange=settings.EXCHANGE_NAME_VALUE,
             exchange_type='topic'
         )
+
+        # get hdfs file paths
+        hdfs_file_paths = get_hdfs_paths(hdfs_client, args.input_dir)
+        
+        # create output dir
+        create_out_dir(hdfs_client, args.output_dir)
 
         # update settings values from args
         settings.HDFS_OUT_DIR_VALUE = args.output_dir
@@ -130,7 +148,7 @@ if __name__ == "__main__":
                 run_registry=args.run_registry
             )
 
-        # deploy
+        # deploy functions
         mapper_deploy_procs = [mapper.deploy() for mapper in mappers]
         for p in mapper_deploy_procs:
             p.wait()
@@ -138,13 +156,14 @@ if __name__ == "__main__":
         for r in reducer_deploy_procs:
             r.wait()
 
-            
+        
         # invoke mappers
         invoke_mappers(channel, args.input_dir, hdfs_file_paths, mappers)
+        wait_for_completion(channel, map_probe_callback)
 
-        # wait for completion
-        wait_for_reducers(channel)
-
+        # invoke reducers
+        invoke_reducers(channel, None, reducers)
+        wait_for_completion(channel, reduce_probe_callback)
 
         # cleanup
         for mapper in mappers:
@@ -152,5 +171,9 @@ if __name__ == "__main__":
         for reducer in reducers:
             reducer.cleanup()
 
+        # delete tmp on hdfs
+        delete_tmp_dir(hdfs_client)
+
+        # close connections
         connection.close()
 

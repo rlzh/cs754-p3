@@ -1,0 +1,50 @@
+apiVersion: nuclio.io/v1
+kind: NuclioFunction
+spec:
+  build:
+    commands:
+    - apt update
+    - pip install pika
+    - pip install hdfs
+  env:
+  - name: ID
+    value: '2'
+  - name: HDFS_HOST
+    value: pc849.emulab.net
+  - name: REDUCER_OUTPUT_FILENAME
+    value: /out_2.txt
+  - name: HDFS_CHUNK_COUNT
+    value: 4
+  - name: NUM_MAPPERS
+    value: 4
+  - name: HDFS_USER
+    value: ubuntu
+  - name: DONE_TOPIC
+    value: tasks.done
+  - name: RMQ_HOST
+    value: pc849.emulab.net
+  - name: RMQ_PORT
+    value: '5672'
+  - name: RMQ_USER
+    value: nuclio
+  - name: RMQ_PASS
+    value: nuclio
+  - name: EXCHANGE_NAME
+    value: mapred_exchange
+  handler: reduce:entry_point
+  replicas: 1
+  runtime: python:3.6
+  triggers:
+    httpTrigger:
+      attributes:
+        port: 31002
+      kind: http
+      maxWorkers: 3
+    rmqTrigger:
+      attributes:
+        exchangeName: mapred_exchange
+        topics:
+        - tasks.reduce.2
+      kind: rabbit-mq
+      maxWorkers: 3
+      url: amqp://nuclio:nuclio@pc849.emulab.net:5672
