@@ -83,7 +83,7 @@ def reduce_probe_callback(ch, method, properties, body):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     # shared args
-    parser.add_argument('--mode', '-m', type=str, default=None, help="available modes: upload, run")
+    # parser.add_argument('--mode', '-m', type=str, default=None, help="available modes: upload, run")
     parser.add_argument('--input_dir', '-i', type=str, default=None)
     parser.add_argument('--output_dir', '-o', type=str, default="/")
     # upload args
@@ -98,82 +98,84 @@ if __name__ == "__main__":
     print(str(args) + "\n\n")
 
     hdfs_client = InsecureClient("http://{}:9870".format(settings.HDFS_HOST_VALUE), user=settings.HDFS_USER_VALUE)
+    # delete tmp on hdfs
+    delete_tmp_dir(hdfs_client)
 
-    if args.mode == None:
-        print("Error: mode arg not set! '-m upload' or '-m run'")
-    elif args.mode == "upload":
-        # chunk & upload input files to hdfs
-        upload.upload_to_hdfs(args.input_dir, args.output_dir, args.chunk_size)
-    elif args.mode == "run":
-        # setup rabbitMQ connection
-        credentials = pika.PlainCredentials(settings.RMQ_USER_VALUE, settings.RMQ_PASS_VALUE)
-        connection = pika.BlockingConnection(pika.ConnectionParameters(
-            host=settings.RMQ_HOST_VALUE, 
-            port=settings.RMQ_PORT_VALUE, 
-            credentials=credentials
-            )
+    upload.upload_to_hdfs(args.input_dir, "/data", args.chunk_size)
+
+    # get hdfs file paths
+    hdfs_file_paths = get_hdfs_paths(hdfs_client, "/data")
+    print(hdfs_file_paths)
+
+    # create output dir
+    create_out_dir(hdfs_client, args.output_dir)
+
+    # update settings values from args
+    settings.HDFS_OUT_DIR_VALUE = args.output_dir
+    settings.HDFS_CHUNK_COUNT_VALUE = len(hdfs_file_paths)
+    settings.NUM_REDUCERS_VALUE = args.reducers
+    args.mapper = min(len(hdfs_file_paths), args.mappers)
+    settings.NUM_MAPPERS_VALUE = args.mappers
+
+    # create map and reduce workers
+    mappers = [None] * args.mappers
+    for i in range(args.mappers):
+        mappers[i] = deploy.create_map_function(
+            function_id=i, 
+            registry=args.registry, 
+            run_registry=args.run_registry
         )
-        channel = connection.channel()
-        channel.exchange_declare(
-            exchange=settings.EXCHANGE_NAME_VALUE,
-            exchange_type='topic'
+    reducers = [None] * args.reducers
+    for i in range(args.reducers):
+        reducers[i] = deploy.create_reduce_function(
+            function_id=i, 
+            registry=args.registry, 
+            run_registry=args.run_registry
         )
 
-        # get hdfs file paths
-        hdfs_file_paths = get_hdfs_paths(hdfs_client, args.input_dir)
-        
-        # create output dir
-        create_out_dir(hdfs_client, args.output_dir)
+    # deploy functions
+    deploy_procs = []
+    for mapper in mappers:
+        deploy_procs.append(mapper.deploy())
+    for p in deploy_procs:
+        p.wait()
+    deploy_procs = []
+    for reducer in reducers:
+        deploy_procs.append(reducer.deploy())
+    for p in deploy_procs:
+        p.wait()
+    
+    # setup rabbitMQ connection
+    credentials = pika.PlainCredentials(settings.RMQ_USER_VALUE, settings.RMQ_PASS_VALUE)
+    connection = pika.BlockingConnection(pika.ConnectionParameters(
+        host=settings.RMQ_HOST_VALUE, 
+        port=settings.RMQ_PORT_VALUE, 
+        credentials=credentials
+        )
+    )
+    channel = connection.channel()
+    channel.exchange_declare(
+        exchange=settings.EXCHANGE_NAME_VALUE,
+        exchange_type='topic'
+    )
 
-        # update settings values from args
-        settings.HDFS_OUT_DIR_VALUE = args.output_dir
-        settings.HDFS_CHUNK_COUNT_VALUE = len(hdfs_file_paths)
-        settings.NUM_REDUCERS_VALUE = args.reducers
-        args.mapper = min(len(hdfs_file_paths), args.mappers)
-        settings.NUM_MAPPERS_VALUE = args.mappers
+    # invoke mappers
+    invoke_mappers(channel, args.input_dir, hdfs_file_paths, mappers)
+    wait_for_completion(channel, map_probe_callback)
 
-        # create map and reduce workers
-        mappers = [None] * args.mappers
-        for i in range(args.mappers):
-            mappers[i] = deploy.create_map_function(
-                function_id=i, 
-                registry=args.registry, 
-                run_registry=args.run_registry
-            )
-        reducers = [None] * args.reducers
-        for i in range(args.reducers):
-            reducers[i] = deploy.create_reduce_function(
-                function_id=i, 
-                registry=args.registry, 
-                run_registry=args.run_registry
-            )
+    # invoke reducers
+    invoke_reducers(channel, None, reducers)
+    wait_for_completion(channel, reduce_probe_callback)
 
-        # deploy functions
-        mapper_deploy_procs = [mapper.deploy() for mapper in mappers]
-        for p in mapper_deploy_procs:
-            p.wait()
-        reducer_deploy_procs = [reducer.deploy() for reducer in reducers]
-        for r in reducer_deploy_procs:
-            r.wait()
+    # cleanup
+    for mapper in mappers:
+        mapper.cleanup()
+    for reducer in reducers:
+        reducer.cleanup()
 
-        
-        # invoke mappers
-        invoke_mappers(channel, args.input_dir, hdfs_file_paths, mappers)
-        wait_for_completion(channel, map_probe_callback)
+    # delete tmp on hdfs
+    delete_tmp_dir(hdfs_client)
 
-        # invoke reducers
-        invoke_reducers(channel, None, reducers)
-        wait_for_completion(channel, reduce_probe_callback)
-
-        # cleanup
-        for mapper in mappers:
-            mapper.cleanup()
-        for reducer in reducers:
-            reducer.cleanup()
-
-        # delete tmp on hdfs
-        delete_tmp_dir(hdfs_client)
-
-        # close connections
-        connection.close()
+    # close connections
+    connection.close()
 
