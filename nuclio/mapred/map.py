@@ -1,6 +1,5 @@
 import os
 import pika
-import json
 import time
 import string
 import sys
@@ -8,6 +7,7 @@ import shutil
 from hdfs import InsecureClient
 import collections 
 import pickle
+import ujson
 
 # command to deploy this function  (metadata.namespace in config file seems to be broken?!?)
 """
@@ -45,10 +45,16 @@ def entry_point(context, event):
         num_reducers = int(os.environ.get('NUM_REDUCERS'))
 
         # load data
-        data = json.loads(event.body.decode("utf-8"))
+        data = ujson.loads(event.body.decode("utf-8"))
         # get path
         hdfs_path = data["hdfs_path"]
-
+        files = [None] * len(red_to_data)
+        is_first = [True] * len(red_to_data)
+        for i in range(len(red_to_data)):
+            file_path = "{}/reduce-{}.json".format(context.user_data.local_output_path, i)
+            files[i] = open(file_path, "w+")
+            # files[i].write("[")
+        
         # stream file from hdfs
         with hdfs_client.read(hdfs_path, encoding='utf-8', delimiter='\n') as reader:
             for line in reader:
@@ -59,22 +65,28 @@ def entry_point(context, event):
                     cleaned = clean(word)
                     # if alpha send to queue
                     if cleaned.isalpha():
-                        data = {"key": cleaned, "value": 1}
-                        red_to_data[hash(cleaned) % num_reducers].append(data)
+                        data = (cleaned, 1)
+                        reducer_id = hash(cleaned) % num_reducers
+                        # red_to_data[reducer_id].append(data)
+                        if is_first[reducer_id]:
+                            # don't add comma ["word", 1]
+                            is_first[reducer_id] = False
+                            files[reducer_id].write(ujson.dumps(data))
+                        else:
+                            # add comma ,["word", 1]
+                            files[reducer_id].write(";"+ujson.dumps(data))
         
         print("Done reading!")
         # dump data to appropriate files on hdfs
         for i in range(len(red_to_data)):
-            print(sys.getsizeof(red_to_data[i]))
-            file_path = "{}/reduce-{}.json".format(context.user_data.local_output_path, i)
-            with open(file_path, "w+") as f:
-                json.dump(red_to_data[i], f)
+            # files[i].write("]")
+            files[i].close()
         print("Done writing")
+        
         remote_path = hdfs_client.upload(
             hdfs_path=context.user_data.hdfs_output_path, 
             local_path=context.user_data.local_output_path, 
             n_threads=-1, 
-            overwrite=True
         )
         print("Done uploading")
         # publish completion message to done topic
@@ -94,8 +106,6 @@ def init_context(context):
     hdfs_client = InsecureClient('http://{}:9870'.format(hdfs_host), user=hdfs_user)
     # setup hdfs dir for intermediate output
     hdfs_output_path = "/tmp"
-    if hdfs_client.content(hdfs_output_path, strict=False) == None:
-        hdfs_client.makedirs(hdfs_output_path)
     setattr(context.user_data, 'hdfs_client', hdfs_client)
     setattr(context.user_data, 'hdfs_output_path', hdfs_output_path)
      # setup local output dir

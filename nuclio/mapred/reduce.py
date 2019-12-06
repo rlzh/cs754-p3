@@ -1,8 +1,9 @@
 import os
 import json
 import time
-import pprint as pp
 import pika
+import pprint as pp
+import ujson
 from collections import defaultdict
 from hdfs import InsecureClient
 
@@ -39,10 +40,13 @@ def entry_point(context, event):
             # load data from hdfs
             file_path = "/tmp/map-{}/reduce-{}.json".format(i, os.environ.get("ID"))
             print("Reading from {}".format(file_path))
-            with hdfs_client.read(file_path, encoding='utf-8') as reader:
-                data = json.load(reader)
-            for d in data:
-                key_count[d['key']] = 1 + (0 if d['key'] not in key_count else key_count[d['key']]) 
+            with hdfs_client.read(file_path, encoding='utf-8', delimiter=";") as reader:
+                for kv_pair in reader:
+                    if len(kv_pair) == 0:
+                        continue
+                    d = ujson.loads(kv_pair)
+                    key_count[d[0]] = 1 + (0 if d[0] not in key_count else key_count[d[0]]) 
+
         print("Done Reading")
         # write output file to hdfs
         output_path = os.environ.get("REDUCER_OUTPUT_FILENAME")

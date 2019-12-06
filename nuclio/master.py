@@ -53,7 +53,7 @@ def invoke_reducers(channel, input_dir, reducers):
     for i in range(len(reducers)):
         channel.basic_publish(exchange=settings.EXCHANGE_NAME_VALUE,
                     routing_key='tasks.reduce.{}'.format(i),
-                    body="")
+                    body="start")
 
 def wait_for_completion(channel, callback):
     result = channel.queue_declare('', exclusive=True)
@@ -87,7 +87,7 @@ if __name__ == "__main__":
     parser.add_argument('--input_dir', '-i', type=str, default=None)
     parser.add_argument('--output_dir', '-o', type=str, default="/")
     # upload args
-    parser.add_argument('--chunk_size', '-cs', type=int, default=127)
+    parser.add_argument('--chunk_size', '-cs', type=int, default=125)
     # run args
     parser.add_argument('--mappers', '-map', type=int, default=1)
     parser.add_argument('--reducers', '-red', type=int, default=1)

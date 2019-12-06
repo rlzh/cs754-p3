@@ -5,6 +5,10 @@ spec:
   handler: reduce:entry_point
   runtime: python:3.6
   replicas: 1
+  resources:
+    requests:
+      memory: "900M"
+      cpu: "100m"
   triggers:
     rmqTrigger:
       maxWorkers: 1
@@ -23,3 +27,4 @@ spec:
     - "apt update"
     - "pip install pika"
     - "pip install hdfs"
+    - "pip install ujson"
