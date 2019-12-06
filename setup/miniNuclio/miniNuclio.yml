@@ -4,7 +4,7 @@
     - name: start minikube
       shell: |
         minikube delete
-        minikube start --vm-driver={{ VM_DRIVER }} --extra-config=apiserver.authorization-mode=RBAC
+        minikube start --vm-driver={{ VM_DRIVER }} --extra-config=apiserver.authorization-mode=RBAC --memory 4000
         kubectl apply -f https://raw.githubusercontent.com/nuclio/nuclio/master/hack/minikube/resources/kubedns-rbac.yaml
         minikube ssh -- docker run -d -p 5000:5000 registry:2
     - name: setup nuclio on minikube
