@@ -42,7 +42,8 @@ To begin first cd to 'setup/' directory
 * install minikube (working version 1.0.0. latest doesn't seem to work)
 * install hyperkit (macOS) or virtualbox (linux)
 * install docker-machine-driver-hyperkit?? (not sure about this for non-macOS)
-* install rabbitmq 3+
+* install rabbitmq 3+ and start rabbitmq-server
+* install HDFS and start HDFS
 
 ### Steps
 1. cd to 'setup/' directory
@@ -64,7 +65,7 @@ Note: nuctl doesn't seem to be able to parse the 'meta.namespace' attribute in t
 
 All settings related to MapReduce are found in 'nuclio/settings.py' and values are loaded from 'nuclio/.env' file at run time.
 
-MapReduce functions can be deployed by executing 'nuclio/deploy.py'. (Run 'nuclio/deploy.py -h' for help)
+MapReduce functions can be deployed and run by executing 'nuclio/master.py'. (Run 'nuclio/master.py -h' for help)
 
 
 # Hadoop
